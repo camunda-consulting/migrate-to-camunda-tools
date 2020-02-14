@@ -21,4 +21,4 @@ And the corresponding BPMN conversion:
 ![](./readme_images/Converted.PNG)
 
 ## Notes and TODOs
-Maybe able to add things like conditions and scripts with further development.
+Maybe add things like conditions and scripts with further development.

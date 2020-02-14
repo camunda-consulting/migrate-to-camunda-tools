@@ -14,5 +14,11 @@ and execute the following command using the resulting jar file
 
 ```java -jar BPMNModelGenerator-1.0-SNAPSHOT-jar-with-dependencies input-file output-file```
 
+BPMN file used to generate XPDL
+![](./readme_images/before.PNG)
+
+After conversion from XPDL to BPMN:
+![](./readme_images/after.PNG)
+
 ## Notes and TODOs
-If vendors use the 2.2 or 3.0 XPDL standard there may need to be tweaks and/or additional utilities for those versions.
+Conversion still need some work to determine non-interrupting events. If vendors use the 2.2 or 3.0 XPDL standard there may need to be tweaks and/or additional utilities for those versions.
