@@ -16,7 +16,7 @@ Here is a sample process in IBM Blueworks Live
 ![](./readme_images/Sample_process.PNG)
 
 And after generating a diagram based on the BPMN export:
-![](./readme_images/After.PNG)
+![](./readme_images/After.png)
 
 ## Notes and TODOs
 This utility has been developed using Camunda and IBM BPM exports as a template though it should work with other vendors who may not include bpmndi elements in their exports. Future updates include adding more entry and exit points on process elements for better diagram clarity. It also includes additional logic to create more waypoints (aka elbows) in sequence flows for a more natural looking initial diagram.
