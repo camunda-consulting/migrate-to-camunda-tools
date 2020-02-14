@@ -13,7 +13,7 @@ and execute the following command using the resulting jar file
 ```java -jar Parser-1.0-SNAPSHOT-jar-with-dependencies.jar input-file output-file```
 
 Here is a sample process in IBM Blueworks Live
-![](./readme_images/Sample process.PNG)
+![](./readme_images/Sample_process.PNG)
 
 And after generating a diagram based on the BPMN export:
 ![](./readme_images/After.PNG)
