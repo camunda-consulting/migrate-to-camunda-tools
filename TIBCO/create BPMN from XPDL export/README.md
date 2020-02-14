@@ -21,4 +21,4 @@ After conversion from XPDL to BPMN:
 ![](./readme_images/after.PNG)
 
 ## Notes and TODOs
-Conversion still need some work to determine non-interrupting events. If vendors use the 2.2 or 3.0 XPDL standard there may need to be tweaks and/or additional utilities for those versions.
+Conversions still need some work to determine non-interrupting events, if possible. If vendors use the 2.2 or 3.0 XPDL standard there may need to be tweaks and/or additional utilities for those versions.
