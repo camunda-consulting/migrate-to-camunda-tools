@@ -14,5 +14,11 @@ and execute the following command using the resulting jar file
 
 ```java -jar BPMNModelGenerator-1.0-SNAPSHOT-jar-with-dependencies input-file output-file```
 
+A sample process in IBM BPM:
+![](./readme_images/IBM.PNG)
+
+And the corresponding BPMN conversion:
+![](./readme_images/Converted.PNG)
+
 ## Notes and TODOs
-May be able to add things like conditions and scripts with further development.
+Maybe able to add things like conditions and scripts with further development.
