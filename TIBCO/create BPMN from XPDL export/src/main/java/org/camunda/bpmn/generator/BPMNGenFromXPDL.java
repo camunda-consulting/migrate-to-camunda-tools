@@ -31,7 +31,7 @@ public class BPMNGenFromXPDL {
             return;
         }
 
-        // Read in XML file that represents a process from TWX export
+        // Read in XML file that represents a process from XPDL export
         File file = new File(args[0]);
 
         // Create hash map to map ids in old file node objects with ids in new file
@@ -55,7 +55,7 @@ public class BPMNGenFromXPDL {
         definitions.setTargetNamespace("http://camunda.org/examples");
         modelInstance.setDefinitions(definitions);
 
-        // For the diagram, a diagram and a plane element needs to be created. The plane is set in a diagram object and the diagram is added as a child element
+        // For the diagram, a diagram and a plane element need to be created. The plane is set in a diagram object and the diagram is added as a child element
         BpmnDiagram bpmnDiagram = modelInstance.newInstance(BpmnDiagram.class);
         BpmnPlane plane = modelInstance.newInstance(BpmnPlane.class);
 
@@ -66,11 +66,11 @@ public class BPMNGenFromXPDL {
         process.setExecutable(true); // Want to make sure it is executable by default in Modeler
 
         // Get pool, laneset, and lane information and add to process
-        // Look for pools. For IBM BPM pools are not used but a default one is defined behind the scenes. We'll add it here
+        // Look for pools.
 
         XPathExpression searchRequest = null;
         XPath xpath = XPathFactory.newInstance().newXPath();
-        //searchRequest = xpath.compile("//Pools/Pool/NodeGraphicsInfos/NodeGraphicsInfo");
+        //searchRequest = xpath.compile("//Pools/Pool/NodeGraphicsInfos/NodeGraphicsInfo"); // Does not take into account namespaces
         searchRequest = xpath.compile("//*[local-name() = 'Pools']/*[local-name() = 'Pool']/*[local-name() = 'NodeGraphicsInfos']/*[local-name() = 'NodeGraphicsInfo']");
         //NodeList originalFlowNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
 
