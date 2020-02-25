@@ -1,5 +1,5 @@
 # IBM BPM .twx to BPMN Generator
-The .twx export format from IBM BPM provides original diagram information which allows for a BPMN diagram that closely matches the original. The xmls that are generalted in the .twx are BPMN-like but not quite BPMN. This utility reads the necessary xml and generates a BPMN file.
+The .twx export format from IBM BPM provides original diagram information which allows for a BPMN diagram that closely matches the original. The xmls that are generated in the .twx are BPMN-like but not quite BPMN. This utility reads the necessary xml and generates a BPMN file.
 
 ## How to use this utility
 First, you'll need to extract the contents of the ```.twx``` file. One method is to change the file extension from ```.twx``` to ```.zip``` and extract the files. Look for the ```.xml``` files in the ```/objects``` folder of your extract. The process xmls tend to be the larger files in this folder. The xml files are human readable and you'll need to determine which one is the candidate for migration. You may want to make a copy and rename the file to something you'll remember. This will serve as the input file parameter for the tool.
