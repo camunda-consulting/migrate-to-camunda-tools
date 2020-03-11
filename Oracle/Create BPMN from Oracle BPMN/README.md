@@ -14,7 +14,7 @@ and execute the following command using the resulting jar file
 
 ```java -jar BPMNModelGenerator-1.0-SNAPSHOT-jar-with-dependencies input-file output-file```
 
-A sample process in OracleBPM:
+A sample process in Oracle BPM:
 ![](./readme_images/Oracle.PNG)
 
 And the corresponding conversion:
