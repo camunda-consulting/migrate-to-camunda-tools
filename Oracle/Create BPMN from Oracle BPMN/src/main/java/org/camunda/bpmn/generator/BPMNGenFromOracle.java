@@ -365,7 +365,7 @@ public class BPMNGenFromOracle {
                 } else {
                     process.addChildElement(sequenceFlow);
                 }
-                
+
                 String targetId = target.getNewId();
                 String sourceId = source.getNewId();
 
