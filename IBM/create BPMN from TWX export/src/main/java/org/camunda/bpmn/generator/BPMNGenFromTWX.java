@@ -573,6 +573,7 @@ public class BPMNGenFromTWX {
             File outputFile = new File(args[1]);
             Bpmn.writeModelToFile(outputFile, modelInstance);
 
+            System.out.println("Diagram " + args[0]+ " converted from IBM .twx export and can be found at "+args[1]);
 
         /*} catch (Exception e) {
             System.out.println("Exception during processing "+e.getMessage());

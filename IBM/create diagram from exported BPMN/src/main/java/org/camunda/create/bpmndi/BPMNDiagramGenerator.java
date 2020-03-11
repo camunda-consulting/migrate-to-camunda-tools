@@ -314,6 +314,8 @@ public class BPMNDiagramGenerator {
             File outputFile = new File(args[1]);
             Bpmn.writeModelToFile(outputFile, modelInstance);
 
+            System.out.println("Diagram " + args[0]+ " converted from IBM BPMN and can be found at "+args[1]);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
