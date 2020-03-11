@@ -18,17 +18,6 @@
                     <ns5:StringFeature value="1.0" name="scale"/>
                     <ns5:StringFeature value="REGULAR" name="sealType"/>
                 </ns5:FeatureSet>
-                <ns5:CorrelationKeys>
-                    <ns5:CorrelationKey name="ckResumeProcess">
-                        <ns5:Property propertyQName="{http://xmlns.oracle.com/bpmn/bpmnProcess/EN}cpServRqstId"/>
-                        <ns5:Property propertyQName="{http://xmlns.oracle.com/bpmn/bpmnProcess/EN}cpServCd"/>
-                    </ns5:CorrelationKey>
-                </ns5:CorrelationKeys>
-                <ns5:Conversations>
-                    <ns5:Conversation id="CONVERSATION_ID_EN_WorkflowService" type="service_call">
-                        <ns5:ServiceCallConversationDefinition service="Services.Externals.WorkflowServiceReference"/>
-                    </ns5:Conversation>
-                </ns5:Conversations>
                 <ns5:ApplicationInfo>
                     <ns5:AppLinkName/>
                     <ns5:Description/>
@@ -64,7 +53,7 @@
                 </extensionElements>
             </lane>
         </laneSet>
-        <serviceTask implementation="Services.Externals.WorkflowServiceReference" operationRef="startService" isForCompensation="false" name="ServiceTask3" id="ServiceTask3">
+        <serviceTask implementation="SomeServiceReference" operationRef="startService" isForCompensation="false" name="ServiceTask3" id="ServiceTask3">
             <extensionElements>
                 <ns5:OracleExtensions>
                     <ns5:GraphicsAttributes>
@@ -78,127 +67,12 @@
                         <ns5:StringFeature value="Begin Level" name="level"/>
                         <ns5:StringFeature value="USE_PROCESS_PERMISSION" name="sealType"/>
                     </ns5:FeatureSet>
-                    <ns5:Conversational conversation="CONVERSATION_ID_EN_WorkflowService">
-                        <ns5:ServiceCallConversationalDefinition operation="startService"/>
-                    </ns5:Conversational>
                     <ns5:LogHandlers/>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <ioSpecification>
-                <dataInput name="startService" id="startService">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startService" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataInput>
-                <dataOutput name="startServiceResponse" id="startServiceResponse">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startServiceResponse" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataOutput>
-                <inputSet id="StartProcessEN_uniqueInputSet">
-                    <dataInputRefs>startService</dataInputRefs>
-                </inputSet>
-                <outputSet id="StartProcessEN_uniqueOutputSet">
-                    <dataOutputRefs>startServiceResponse</dataOutputRefs>
-                </outputSet>
-            </ioSpecification>
-            <dataInputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <sourceRef>inputData</sourceRef>
-                <targetRef>startService</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getProcessInstanceAttribute('compositeInstanceId')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startService')/serviceRequest/bpmProcessInstanceId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:startMode
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startService')/serviceRequest/startMode
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servCd
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startService')/serviceRequest/servCd
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startService')/serviceRequest/servRqstId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataInputAssociation>
+            <ioSpecification/>
         </serviceTask>
-        <serviceTask implementation="Services.Externals.WorkflowServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask4" id="ServiceTask4">
+        <serviceTask implementation="SomeServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask4" id="ServiceTask4">
             <extensionElements>
                 <ns5:OracleExtensions>
                     <ns5:GraphicsAttributes>
@@ -212,216 +86,10 @@
                         <ns5:StringFeature value="Begin Level" name="level"/>
                         <ns5:StringFeature value="USE_PROCESS_PERMISSION" name="sealType"/>
                     </ns5:FeatureSet>
-                    <ns5:Conversational conversation="CONVERSATION_ID_EN_WorkflowService">
-                        <ns5:ServiceCallConversationalDefinition operation="startAction"/>
-                    </ns5:Conversational>
                     <ns5:LogHandlers/>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <ioSpecification>
-                <dataInput name="startAction" id="startAction">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startAction" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataInput>
-                <dataOutput name="startActionResponse" id="startActionResponse">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startActionResponse" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataOutput>
-                <inputSet id="OFCK_uniqueInputSet">
-                    <dataInputRefs>startAction</dataInputRefs>
-                </inputSet>
-                <outputSet id="OFCK_uniqueOutputSet">
-                    <dataOutputRefs>startActionResponse</dataOutputRefs>
-                </outputSet>
-            </ioSpecification>
-            <dataInputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <sourceRef>inputData</sourceRef>
-                <targetRef>startAction</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getProcessInstanceAttribute('compositeInstanceId')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmProcessInstanceId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'OFCK'
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/actnCd
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'EN'
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmFlowId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:restartActnCds
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/restartActnCds
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'MDT20N1'
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/performProgram
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servCd
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servCd
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servRqstId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataInputAssociation>
-            <dataOutputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <sourceRef>startActionResponse</sourceRef>
-                <targetRef>OFCKStatus</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('startActionResponse')/serviceResponse/stat
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFCKStatus')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataOutputAssociation>
+            <ioSpecification/>
         </serviceTask>
         <subProcess triggeredByEvent="false" isForCompensation="false" name="SubProcess" id="SubProcess">
             <extensionElements>
@@ -443,7 +111,7 @@
                 </ns5:OracleExtensions>
             </extensionElements>
             <ioSpecification/>
-            <serviceTask implementation="Services.Externals.WorkflowServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask" id="ServiceTask">
+            <serviceTask implementation="SomeServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask" id="ServiceTask">
                 <extensionElements>
                     <ns5:OracleExtensions>
                         <ns5:GraphicsAttributes>
@@ -457,251 +125,10 @@
                             <ns5:StringFeature value="Begin Level" name="level"/>
                             <ns5:StringFeature value="USE_PROCESS_PERMISSION" name="sealType"/>
                         </ns5:FeatureSet>
-                        <ns5:Conversational conversation="CONVERSATION_ID_EN_WorkflowService">
-                            <ns5:ServiceCallConversationalDefinition operation="startAction"/>
-                        </ns5:Conversational>
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <ioSpecification>
-                    <dataInput name="startAction" id="startAction">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startAction" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataOutput name="startActionResponse" id="startActionResponse">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startActionResponse" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <inputSet id="PreOFEN_uniqueInputSet">
-                        <dataInputRefs>startAction</dataInputRefs>
-                    </inputSet>
-                    <outputSet id="PreOFEN_uniqueOutputSet">
-                        <dataOutputRefs>startActionResponse</dataOutputRefs>
-                    </outputSet>
-                </ioSpecification>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>startAction</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getProcessInstanceAttribute('compositeInstanceId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmProcessInstanceId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'SubProcess'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/actnCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'EN'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmFlowId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:restartActnCds
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/restartActnCds
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>OFENStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('startActionResponse')/serviceResponse/stat
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFENStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>OFENIsSyncRequired</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">xp20:matches(string(bpmn:getDataOutput('startActionResponse')/serviceResponse/isSyncRequired), '\s*(?i:true|1)\s*')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFENIsSyncRequired')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>OFENAssgndUserId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('startActionResponse')/serviceResponse/assgndUserId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFENAssgndUserId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
+                <ioSpecification/>
             </serviceTask>
             <userTask isForCompensation="false" name="UserTask" id="UserTask">
                 <extensionElements>
@@ -722,450 +149,11 @@
                             <ns5:StringFeature value="GROUP" name="humanTaskType"/>
                             <ns5:StringFeature value="" name="reinitiateSource"/>
                         </ns5:FeatureSet>
-                        <ns5:HumanTask humanTaskReference="HumanTasks.PerformOFEN"/>
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <ioSpecification>
-                    <dataInput name="servRqstId" id="servRqstId">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="nonNegativeInteger" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="actnCd" id="actnCd">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="assgndUserId" id="assgndUserId">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="reverseType" id="reverseType">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="previousActnCds" id="previousActnCds">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="bpmFlowId" id="bpmFlowId">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="reverseToActivityName" id="reverseToActivityName">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="stat" id="stat">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="countryOfOrigin" id="countryOfOrigin">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="execData" id="execData">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://xmlns.oracle.com/bpel/workflow/task" element="task" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataOutput name="outcome" id="outcome">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="reverseToActivityName" id="reverseToActivityName">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="stat" id="stat">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="countryOfOrigin" id="countryOfOrigin">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="execData" id="execData">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://xmlns.oracle.com/bpel/workflow/task" element="task" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <inputSet id="PerformOFEN_uniqueInputSet">
-                        <dataInputRefs>servRqstId</dataInputRefs>
-                        <dataInputRefs>actnCd</dataInputRefs>
-                        <dataInputRefs>assgndUserId</dataInputRefs>
-                        <dataInputRefs>reverseType</dataInputRefs>
-                        <dataInputRefs>previousActnCds</dataInputRefs>
-                        <dataInputRefs>bpmFlowId</dataInputRefs>
-                        <dataInputRefs>reverseToActivityName</dataInputRefs>
-                        <dataInputRefs>stat</dataInputRefs>
-                        <dataInputRefs>countryOfOrigin</dataInputRefs>
-                        <dataInputRefs>execData</dataInputRefs>
-                    </inputSet>
-                    <outputSet id="PerformOFEN_uniqueOutputSet">
-                        <dataOutputRefs>outcome</dataOutputRefs>
-                        <dataOutputRefs>reverseToActivityName</dataOutputRefs>
-                        <dataOutputRefs>stat</dataOutputRefs>
-                        <dataOutputRefs>countryOfOrigin</dataOutputRefs>
-                        <dataOutputRefs>execData</dataOutputRefs>
-                    </outputSet>
-                </ioSpecification>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>servRqstId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('servRqstId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>countryOfOrigin</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:countryOfOrigin
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('countryOfOrigin')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>execData</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:customAttributes/ns:customAttributeNumber1
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:customAttributes/ns:customAttributeString1
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'OFEN'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:customAttributes/ns:customAttributeString2
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:countryOfOrigin
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:systemMessageAttributes/ns:textAttribute1
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>OFENAssgndUserId</sourceRef>
-                    <targetRef>assgndUserId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFENAssgndUserId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('assgndUserId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <targetRef>actnCd</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'OFEN'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('actnCd')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <targetRef>bpmFlowId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'EN'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('bpmFlowId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>outcome</sourceRef>
-                    <targetRef>OFENOutcome</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('outcome')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFENOutcome')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>stat</sourceRef>
-                    <targetRef>OFENStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('stat')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFENStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>countryOfOrigin</sourceRef>
-                    <targetRef>inputData</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('countryOfOrigin')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:countryOfOrigin
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <resourceRole name="OFFICE" id="lane1"/>
+                <ioSpecification/>
+                <resourceRole name="Lane1" id="lane1"/>
             </userTask>
             <startEvent isInterrupting="false" name="Start" id="Start">
                 <extensionElements>
@@ -1213,7 +201,7 @@
                             <ns5:StringFeature value="PROCESS_DEFAULT" name="generatesEvents"/>
                             <ns5:StringFeature value="Begin Level" name="level"/>
                             <ns5:StringFeature value="USE_PROCESS_PERMISSION" name="sealType"/>
-                            <ns5:StringFeature value="CatalogObjectImpl(Events.1.0.ResumeENFromOFENEvent)" name="signalEventDefinition"/>
+                            <ns5:StringFeature value="SomeSignal" name="signalEventDefinition"/>
                         </ns5:FeatureSet>
                         <ns5:CorrelationEnabledData>
                             <ns5:OutputCorrelationEnabledData>
@@ -1225,45 +213,7 @@
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <dataOutput name="payload" id="payload">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/bpm/20120202" element="resumeENProcess" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataOutput>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>payload</sourceRef>
-                    <targetRef>OFENStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('payload')/ns:stat
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('OFENStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <outputSet id="WaitSyncOFEN_uniqueOutputSet">
-                    <dataOutputRefs>payload</dataOutputRefs>
-                </outputSet>
-                <signalEventDefinition signalRef="Events.1.0.ResumeENFromOFENEvent">
+                <signalEventDefinition signalRef="SomeSignal">
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <formalExpression/>
@@ -1293,7 +243,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toPreOFEN" name="userName"/>
+                            <ns5:StringFeature value="toServiceTask" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -1306,7 +256,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toGW_PreOFEN" name="userName"/>
+                            <ns5:StringFeature value="toExclusiveGateway" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -1319,12 +269,12 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toWaitSyncOFEN" name="userName"/>
+                            <ns5:StringFeature value="toCatchEvent" name="userName"/>
                             <ns5:IntegerFeature value="0" name="order"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">xp20:matches(string(bpmn:getDataObject('OFENIsSyncRequired')), '\s*(?i:true|1)\s*')
+                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">xp20:matches(string(bpmn:getDataObject('SomeField')), '\s*(?i:true|1)\s*')
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <ns5:Expression mode="simple"/>
@@ -1340,7 +290,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toPerformOFEN" name="userName"/>
+                            <ns5:StringFeature value="toUserTask" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -1355,12 +305,12 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="376,135" name="curve"/>
                             <ns5:StringFeature value="ORTHOGONAL" name="routing"/>
-                            <ns5:StringFeature value="toPerformOFEN" name="userName"/>
+                            <ns5:StringFeature value="toUserTask" name="userName"/>
                             <ns5:IntegerFeature value="0" name="order"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">contains(string(bpmn:getDataObject('ACTIVE_STATUS')), string(bpmn:getDataObject('OFENStatus')))
+                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">contains(string(bpmn:getDataObject('ACTIVE_STATUS')), string(bpmn:getDataObject('AnotherField')))
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <ns5:Expression mode="simple"/>
@@ -1376,7 +326,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toEndOFEN" name="userName"/>
+                            <ns5:StringFeature value="toEnd" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -1391,38 +341,11 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="426,144" name="curve"/>
                             <ns5:StringFeature value="ORTHOGONAL" name="routing"/>
-                            <ns5:StringFeature value="toEndOFEN" name="userName"/>
+                            <ns5:StringFeature value="toEnd" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
             </sequenceFlow>
-            <dataObject name="OFENOutcome" id="OFENOutcome">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:DataObjectType initialize="true">
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                        </ns5:DataObjectType>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataObject>
-            <dataObject name="OFENAssgndUserId" id="OFENAssgndUserId">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:DataObjectType initialize="true">
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                        </ns5:DataObjectType>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataObject>
-            <dataObject name="OFENIsSyncRequired" id="OFENIsSyncRequired">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:DataObjectType initialize="true">
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="boolean" isArray="false"/>
-                        </ns5:DataObjectType>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataObject>
         </subProcess>
         <subProcess triggeredByEvent="false" isForCompensation="false" name="SubProcess1" id="SubProcess1">
             <extensionElements>
@@ -1444,7 +367,7 @@
                 </ns5:OracleExtensions>
             </extensionElements>
             <ioSpecification/>
-            <serviceTask implementation="Services.Externals.WorkflowServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask1" id="ServiceTask1">
+            <serviceTask implementation="SomeServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask1" id="ServiceTask1">
                 <extensionElements>
                     <ns5:OracleExtensions>
                         <ns5:GraphicsAttributes>
@@ -1464,217 +387,7 @@
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <ioSpecification>
-                    <dataInput name="startAction" id="startAction">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startAction" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataOutput name="startActionResponse" id="startActionResponse">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startActionResponse" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <inputSet id="PreIRPI_uniqueInputSet">
-                        <dataInputRefs>startAction</dataInputRefs>
-                    </inputSet>
-                    <outputSet id="PreIRPI_uniqueOutputSet">
-                        <dataOutputRefs>startActionResponse</dataOutputRefs>
-                    </outputSet>
-                </ioSpecification>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>startAction</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getProcessInstanceAttribute('compositeInstanceId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmProcessInstanceId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'IRPI'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/actnCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'EN'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmFlowId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:restartActnCds
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/restartActnCds
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>IRPIStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('startActionResponse')/serviceResponse/stat
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('IRPIStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>IRPIIsSyncRequired</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">xp20:matches(string(bpmn:getDataOutput('startActionResponse')/serviceResponse/isSyncRequired), '\s*(?i:true|1)\s*')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('IRPIIsSyncRequired')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
+                <ioSpecification/>
             </serviceTask>
             <startEvent isInterrupting="false" name="Start1" id="Start1">
                 <extensionElements>
@@ -1722,7 +435,7 @@
                             <ns5:StringFeature value="PROCESS_DEFAULT" name="generatesEvents"/>
                             <ns5:StringFeature value="Begin Level" name="level"/>
                             <ns5:StringFeature value="USE_PROCESS_PERMISSION" name="sealType"/>
-                            <ns5:StringFeature value="CatalogObjectImpl(Events.1.0.ResumeENFromIRPIEvent)" name="signalEventDefinition"/>
+                            <ns5:StringFeature value="Some_signal" name="signalEventDefinition"/>
                         </ns5:FeatureSet>
                         <ns5:CorrelationEnabledData>
                             <ns5:OutputCorrelationEnabledData>
@@ -1734,45 +447,7 @@
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <dataOutput name="payload" id="payload">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/bpm/20120202" element="resumeENProcess" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataOutput>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>payload</sourceRef>
-                    <targetRef>IRPIStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('payload')/ns:stat
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('IRPIStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <outputSet id="WaitIRPI_uniqueOutputSet">
-                    <dataOutputRefs>payload</dataOutputRefs>
-                </outputSet>
-                <signalEventDefinition signalRef="Events.1.0.ResumeENFromIRPIEvent">
+                <signalEventDefinition signalRef="Some_signal">
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <formalExpression/>
@@ -1802,7 +477,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toPreIRPI" name="userName"/>
+                            <ns5:StringFeature value="toServiceTask1" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -1815,7 +490,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toGW_PreIRPI" name="userName"/>
+                            <ns5:StringFeature value="toExclusiveGateway1" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -1828,12 +503,12 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toWaitIRPI" name="userName"/>
+                            <ns5:StringFeature value="toCatchEvent1" name="userName"/>
                             <ns5:IntegerFeature value="0" name="order"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">contains(string(bpmn:getDataObject('ACTIVE_STATUS')), string(bpmn:getDataObject('IRPIStatus'))) or xp20:matches(string(bpmn:getDataObject('IRPIIsSyncRequired')), '\s*(?i:true|1)\s*')
+                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">contains(string(bpmn:getDataObject('ACTIVE_STATUS')), string(bpmn:getDataObject('Something'))) or xp20:matches(string(bpmn:getDataObject('Something')), '\s*(?i:true|1)\s*')
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <ns5:Expression mode="simple"/>
@@ -1849,7 +524,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toEndIRPI" name="userName"/>
+                            <ns5:StringFeature value="toEnd1" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -1864,20 +539,11 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="382,142" name="curve"/>
                             <ns5:StringFeature value="ORTHOGONAL" name="routing"/>
-                            <ns5:StringFeature value="toEndIRPI" name="userName"/>
+                            <ns5:StringFeature value="toEnd1" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
             </sequenceFlow>
-            <dataObject name="IRPIIsSyncRequired" id="IRPIIsSyncRequired">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:DataObjectType initialize="true">
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="boolean" isArray="false"/>
-                        </ns5:DataObjectType>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataObject>
         </subProcess>
         <subProcess triggeredByEvent="false" isForCompensation="false" name="SubProcess2" id="SubProcess2">
             <extensionElements>
@@ -1899,7 +565,7 @@
                 </ns5:OracleExtensions>
             </extensionElements>
             <ioSpecification/>
-            <serviceTask implementation="Services.Externals.WorkflowServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask2" id="ServiceTask2">
+            <serviceTask implementation="SomeServiceReference" operationRef="startAction" isForCompensation="false" name="ServiceTask2" id="ServiceTask2">
                 <extensionElements>
                     <ns5:OracleExtensions>
                         <ns5:GraphicsAttributes>
@@ -1919,245 +585,7 @@
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <ioSpecification>
-                    <dataInput name="startAction" id="startAction">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startAction" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataOutput name="startActionResponse" id="startActionResponse">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/service/WorkflowService/1.0" element="startActionResponse" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <inputSet id="PreAPRE_uniqueInputSet">
-                        <dataInputRefs>startAction</dataInputRefs>
-                    </inputSet>
-                    <outputSet id="PreAPRE_uniqueOutputSet">
-                        <dataOutputRefs>startActionResponse</dataOutputRefs>
-                    </outputSet>
-                </ioSpecification>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>startAction</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getProcessInstanceAttribute('compositeInstanceId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmProcessInstanceId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'APRE'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/actnCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'EN'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/bpmFlowId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:restartActnCds
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/restartActnCds
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('startAction')/serviceRequest/servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>APREStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('startActionResponse')/serviceResponse/stat
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>APREIsSyncRequired</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">xp20:matches(string(bpmn:getDataOutput('startActionResponse')/serviceResponse/isSyncRequired), '\s*(?i:true|1)\s*')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREIsSyncRequired')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>startActionResponse</sourceRef>
-                    <targetRef>APREAssgndUserId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('startActionResponse')/serviceResponse/assgndUserId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREAssgndUserId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
+                <ioSpecification/>
             </serviceTask>
             <userTask isForCompensation="false" name="UserTask2" id="UserTask2">
                 <extensionElements>
@@ -2178,450 +606,11 @@
                             <ns5:StringFeature value="GROUP" name="humanTaskType"/>
                             <ns5:StringFeature value="" name="reinitiateSource"/>
                         </ns5:FeatureSet>
-                        <ns5:HumanTask humanTaskReference="HumanTasks.PerformAPRE"/>
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <ioSpecification>
-                    <dataInput name="servRqstId" id="servRqstId">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="nonNegativeInteger" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="actnCd" id="actnCd">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="assgndUserId" id="assgndUserId">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="reverseType" id="reverseType">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="previousActnCds" id="previousActnCds">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="bpmFlowId" id="bpmFlowId">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="reverseToActivityName" id="reverseToActivityName">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="stat" id="stat">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="countryOfOrigin" id="countryOfOrigin">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataInput name="execData" id="execData">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://xmlns.oracle.com/bpel/workflow/task" element="task" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataInput>
-                    <dataOutput name="outcome" id="outcome">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="reverseToActivityName" id="reverseToActivityName">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="stat" id="stat">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="countryOfOrigin" id="countryOfOrigin">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <dataOutput name="execData" id="execData">
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:TypeRef namespace="http://xmlns.oracle.com/bpel/workflow/task" element="task" isArray="false"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </dataOutput>
-                    <inputSet id="PerformAPRE_uniqueInputSet">
-                        <dataInputRefs>servRqstId</dataInputRefs>
-                        <dataInputRefs>actnCd</dataInputRefs>
-                        <dataInputRefs>assgndUserId</dataInputRefs>
-                        <dataInputRefs>reverseType</dataInputRefs>
-                        <dataInputRefs>previousActnCds</dataInputRefs>
-                        <dataInputRefs>bpmFlowId</dataInputRefs>
-                        <dataInputRefs>reverseToActivityName</dataInputRefs>
-                        <dataInputRefs>stat</dataInputRefs>
-                        <dataInputRefs>countryOfOrigin</dataInputRefs>
-                        <dataInputRefs>execData</dataInputRefs>
-                    </inputSet>
-                    <outputSet id="PerformAPRE_uniqueOutputSet">
-                        <dataOutputRefs>outcome</dataOutputRefs>
-                        <dataOutputRefs>reverseToActivityName</dataOutputRefs>
-                        <dataOutputRefs>stat</dataOutputRefs>
-                        <dataOutputRefs>countryOfOrigin</dataOutputRefs>
-                        <dataOutputRefs>execData</dataOutputRefs>
-                    </outputSet>
-                </ioSpecification>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>servRqstId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('servRqstId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>countryOfOrigin</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:countryOfOrigin
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('countryOfOrigin')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>inputData</sourceRef>
-                    <targetRef>execData</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:customAttributes/ns:customAttributeNumber1
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servCd
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:customAttributes/ns:customAttributeString1
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'APRE'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:customAttributes/ns:customAttributeString2
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:countryOfOrigin
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://xmlns.oracle.com/bpel/workflow/task" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('execData')/ns:systemMessageAttributes/ns:textAttribute1
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>APREAssgndUserId</sourceRef>
-                    <targetRef>assgndUserId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREAssgndUserId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('assgndUserId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <targetRef>actnCd</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'APRE'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('actnCd')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataInputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <targetRef>bpmFlowId</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'EN'
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('bpmFlowId')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataInputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>outcome</sourceRef>
-                    <targetRef>APREOutcome</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('outcome')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREOutcome')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>stat</sourceRef>
-                    <targetRef>APREStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('stat')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>countryOfOrigin</sourceRef>
-                    <targetRef>inputData</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('countryOfOrigin')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:countryOfOrigin
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <resourceRole name="CHANCELLERIE" id="lane2"/>
+                <ioSpecification/>
+                <resourceRole name="Lane2" id="lane2"/>
             </userTask>
             <startEvent isInterrupting="false" name="Start2" id="Start2">
                 <extensionElements>
@@ -2669,7 +658,7 @@
                             <ns5:StringFeature value="PROCESS_DEFAULT" name="generatesEvents"/>
                             <ns5:StringFeature value="Begin Level" name="level"/>
                             <ns5:StringFeature value="USE_PROCESS_PERMISSION" name="sealType"/>
-                            <ns5:StringFeature value="CatalogObjectImpl(Events.1.0.ResumeENFromAPREEvent)" name="signalEventDefinition"/>
+                            <ns5:StringFeature value="Another_signal" name="signalEventDefinition"/>
                         </ns5:FeatureSet>
                         <ns5:CorrelationEnabledData>
                             <ns5:OutputCorrelationEnabledData>
@@ -2681,45 +670,7 @@
                         <ns5:LogHandlers/>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <dataOutput name="payload" id="payload">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/bpm/20120202" element="resumeENProcess" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataOutput>
-                <dataOutputAssociation>
-                    <extensionElements>
-                        <ns5:OracleExtensions/>
-                    </extensionElements>
-                    <sourceRef>payload</sourceRef>
-                    <targetRef>APREStatus</targetRef>
-                    <assignment>
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:DataAssignment operation="copy"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                        <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('payload')/ns:stat
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </from>
-                        <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREStatus')
-                            <extensionElements>
-                                <ns5:OracleExtensions>
-                                    <ns5:Expression mode="simple"/>
-                                </ns5:OracleExtensions>
-                            </extensionElements>
-                        </to>
-                    </assignment>
-                </dataOutputAssociation>
-                <outputSet id="WaitSyncAPRE_uniqueOutputSet">
-                    <dataOutputRefs>payload</dataOutputRefs>
-                </outputSet>
-                <signalEventDefinition signalRef="Events.1.0.ResumeENFromAPREEvent">
+                <signalEventDefinition signalRef="Another_signal">
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <formalExpression/>
@@ -2749,7 +700,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toPreAPRE" name="userName"/>
+                            <ns5:StringFeature value="toServiceTask2" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -2762,7 +713,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toGW_PreAPRE" name="userName"/>
+                            <ns5:StringFeature value="toExclusiveGateway2" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -2775,12 +726,12 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toWaitSyncAPRE" name="userName"/>
+                            <ns5:StringFeature value="toCatchEvent2" name="userName"/>
                             <ns5:IntegerFeature value="0" name="order"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">xp20:matches(string(bpmn:getDataObject('APREIsSyncRequired')), '\s*(?i:true|1)\s*')
+                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">xp20:matches(string(bpmn:getDataObject('Something')), '\s*(?i:true|1)\s*')
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <ns5:Expression mode="simple"/>
@@ -2796,7 +747,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toPerformAPRE" name="userName"/>
+                            <ns5:StringFeature value="toUserTask2" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -2816,7 +767,7 @@
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
-                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">contains(string(bpmn:getDataObject('ACTIVE_STATUS')), string(bpmn:getDataObject('APREStatus')))
+                <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">contains(string(bpmn:getDataObject('ACTIVE_STATUS')), string(bpmn:getDataObject('Something')))
                     <extensionElements>
                         <ns5:OracleExtensions>
                             <ns5:Expression mode="simple"/>
@@ -2832,7 +783,7 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                             <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                            <ns5:StringFeature value="toEndAPRE" name="userName"/>
+                            <ns5:StringFeature value="toEnd2" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
@@ -2847,38 +798,11 @@
                             <ns5:BooleanFeature value="false" name="collapseMessage"/>
                             <ns5:StringFeature value="432,144" name="curve"/>
                             <ns5:StringFeature value="ORTHOGONAL" name="routing"/>
-                            <ns5:StringFeature value="toEndAPRE" name="userName"/>
+                            <ns5:StringFeature value="toEnd2" name="userName"/>
                         </ns5:FeatureSet>
                     </ns5:OracleExtensions>
                 </extensionElements>
             </sequenceFlow>
-            <dataObject name="APREOutcome" id="APREOutcome">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:DataObjectType initialize="true">
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                        </ns5:DataObjectType>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataObject>
-            <dataObject name="APREAssgndUserId" id="APREAssgndUserId">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:DataObjectType initialize="true">
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                        </ns5:DataObjectType>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataObject>
-            <dataObject name="APREIsSyncRequired" id="APREIsSyncRequired">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:DataObjectType initialize="true">
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="boolean" isArray="false"/>
-                        </ns5:DataObjectType>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataObject>
         </subProcess>
         <callActivity calledElement="SomeCalledSubFlow" isForCompensation="false" name="Call Activity" id="CallActivity">
             <extensionElements>
@@ -2892,52 +816,13 @@
                         <ns5:BooleanFeature value="false" name="outputValidation"/>
                         <ns5:StringFeature value="PROCESS_DEFAULT" name="generatesEvents"/>
                         <ns5:StringFeature value="Begin Level" name="level"/>
-                        <ns5:StringFeature value="APRESubflow" name="relatedProcessName"/>
+                        <ns5:StringFeature value="Some_subflow" name="relatedProcessName"/>
                         <ns5:StringFeature value="USE_PROCESS_PERMISSION" name="sealType"/>
                     </ns5:FeatureSet>
                     <ns5:LogHandlers/>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <ioSpecification>
-                <dataInput name="inputStatus" id="inputStatus">
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                </dataInput>
-                <inputSet id="CallAPRESubflow_uniqueInputSet">
-                    <dataInputRefs>inputStatus</dataInputRefs>
-                </inputSet>
-            </ioSpecification>
-            <dataInputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <sourceRef>APREStatus</sourceRef>
-                <targetRef>inputStatus</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('APREStatus')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('inputStatus')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataInputAssociation>
+            <ioSpecification/>
         </callActivity>
         <startEvent isInterrupting="false" name="Start3" id="Start3">
             <extensionElements>
@@ -2963,152 +848,6 @@
                     <ns5:LogHandlers/>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <dataOutput name="payload" id="payload">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/bpm/20120202" element="startENProcess" isArray="false"/>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataOutput>
-            <dataOutputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <sourceRef>payload</sourceRef>
-                <targetRef>inputData</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataOutput('payload')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataOutputAssociation>
-            <dataOutputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <targetRef>NORMAL_STATUS</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'A,C,S'
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('NORMAL_STATUS')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataOutputAssociation>
-            <dataOutputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <targetRef>ERROR_STATUS</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'E,K'
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('ERROR_STATUS')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataOutputAssociation>
-            <dataOutputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <targetRef>ACTIVE_STATUS</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">'A'
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('ACTIVE_STATUS')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataOutputAssociation>
-            <dataOutputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <targetRef>RESET_STATUS</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath">' '
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('RESET_STATUS')
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataOutputAssociation>
-            <outputSet id="StartEN_uniqueOutputSet">
-                <dataOutputRefs>payload</dataOutputRefs>
-            </outputSet>
             <signalEventDefinition signalRef="Events.1.0.StartENEvent">
                 <extensionElements>
                     <ns5:OracleExtensions>
@@ -3134,44 +873,6 @@
                     <ns5:LogHandlers/>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <dataInput name="payload" id="payload">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:TypeRef namespace="http://www.wipo.int/iris/tm/bpm/20120202" element="endENProcess" isArray="false"/>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataInput>
-            <dataInputAssociation>
-                <extensionElements>
-                    <ns5:OracleExtensions/>
-                </extensionElements>
-                <sourceRef>inputData</sourceRef>
-                <targetRef>payload</targetRef>
-                <assignment>
-                    <extensionElements>
-                        <ns5:OracleExtensions>
-                            <ns5:DataAssignment operation="copy"/>
-                        </ns5:OracleExtensions>
-                    </extensionElements>
-                    <from xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataObject('inputData')/ns:servRqstId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </from>
-                    <to xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">bpmn:getDataInput('payload')/ns:servRqstId
-                        <extensionElements>
-                            <ns5:OracleExtensions>
-                                <ns5:Expression mode="simple"/>
-                            </ns5:OracleExtensions>
-                        </extensionElements>
-                    </to>
-                </assignment>
-            </dataInputAssociation>
-            <inputSet id="EndEN_uniqueInputSet">
-                <dataInputRefs>payload</dataInputRefs>
-            </inputSet>
             <signalEventDefinition signalRef="Events.1.0.EndENEvent">
                 <extensionElements>
                     <ns5:OracleExtensions>
@@ -3199,16 +900,6 @@
                     <ns5:LogHandlers/>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <dataOutput name="errorInfo" id="errorInfo">
-                <extensionElements>
-                    <ns5:OracleExtensions>
-                        <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                    </ns5:OracleExtensions>
-                </extensionElements>
-            </dataOutput>
-            <outputSet id="CatchReverseAPRESubflow_uniqueOutputSet">
-                <dataOutputRefs>errorInfo</dataOutputRefs>
-            </outputSet>
             <errorEventDefinition errorRef="ns7:ReverseExceptionBO" xmlns:ns7="http://xmlns.oracle.com/bpm/bpmobject/BO/ReverseExceptionBO">
                 <extensionElements>
                     <ns5:OracleExtensions>
@@ -3252,7 +943,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="StartProcessENtoGW_MultipleStarts" name="userName"/>
+                        <ns5:StringFeature value="toExclusiveGateway3" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
@@ -3265,7 +956,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="GW_MultipleStartstoOFCK" name="userName"/>
+                        <ns5:StringFeature value="toServiceTask4" name="userName"/>
                         <ns5:IntegerFeature value="0" name="order"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
@@ -3286,12 +977,12 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="GW_MultipleStartstoOFEN" name="userName"/>
+                        <ns5:StringFeature value="toSubProcess" name="userName"/>
                         <ns5:IntegerFeature value="0" name="order"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">(bpmn:getDataObject('inputData')/ns:initialActnCd = 'OFEN')
+            <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">(bpmn:getDataObject('inputData')/ns:initialActnCd = 'Something')
                 <extensionElements>
                     <ns5:OracleExtensions>
                         <ns5:Expression mode="simple"/>
@@ -3307,12 +998,12 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="GW_MultipleStartstoIRPI" name="userName"/>
+                        <ns5:StringFeature value="toSubProcess1" name="userName"/>
                         <ns5:IntegerFeature value="0" name="order"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
-            <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">(bpmn:getDataObject('inputData')/ns:initialActnCd = 'IRPI')
+            <conditionExpression xsi:type="tFormalExpression" language="http://www.w3.org/1999/XPath" ns7:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" ns7:ns="http://www.wipo.int/iris/tm/bpm/20120202" ns7:bpmn="http://www.omg.org/bpmn20" xmlns:ns7="http://xmlns.oracle.com/bpm/XPathNamespace">(bpmn:getDataObject('inputData')/ns:initialActnCd = 'Something')
                 <extensionElements>
                     <ns5:OracleExtensions>
                         <ns5:Expression mode="simple"/>
@@ -3330,7 +1021,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="906,266" name="curve"/>
                         <ns5:StringFeature value="ORTHOGONAL" name="routing"/>
-                        <ns5:StringFeature value="GW_MultipleStartstoAPRE" name="userName"/>
+                        <ns5:StringFeature value="toSubProcess2" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
@@ -3345,7 +1036,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="1259,83" name="curve"/>
                         <ns5:StringFeature value="ORTHOGONAL" name="routing"/>
-                        <ns5:StringFeature value="APREtoCallAPRESubflow" name="userName"/>
+                        <ns5:StringFeature value="toCallActivity" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
@@ -3358,7 +1049,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="CatchReverseAPRESubflowtoAPRE" name="userName"/>
+                        <ns5:StringFeature value="toSubProcess2" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
@@ -3371,7 +1062,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="CallAPRESubflowtoEndEN" name="userName"/>
+                        <ns5:StringFeature value="toEnd3" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
@@ -3384,7 +1075,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="OFCKtoCallAPRESubflow" name="userName"/>
+                        <ns5:StringFeature value="toCallActivity1" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
@@ -3397,7 +1088,7 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="OFENtoCallAPRESubflow" name="userName"/>
+                        <ns5:StringFeature value="toCallActivity" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
@@ -3410,46 +1101,10 @@
                         <ns5:BooleanFeature value="false" name="collapseMessage"/>
                         <ns5:StringFeature value="-2147483648,-2147483648" name="curve"/>
                         <ns5:StringFeature value="STRAIGHT" name="routing"/>
-                        <ns5:StringFeature value="IRPItoCallAPRESubflow" name="userName"/>
+                        <ns5:StringFeature value="toCallActivity" name="userName"/>
                     </ns5:FeatureSet>
                 </ns5:OracleExtensions>
             </extensionElements>
         </sequenceFlow>
-        <dataObject name="OFENStatus" id="OFENStatus">
-            <extensionElements>
-                <ns5:OracleExtensions>
-                    <ns5:DataObjectType initialize="true">
-                        <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                    </ns5:DataObjectType>
-                </ns5:OracleExtensions>
-            </extensionElements>
-        </dataObject>
-        <dataObject name="IRPIStatus" id="IRPIStatus">
-            <extensionElements>
-                <ns5:OracleExtensions>
-                    <ns5:DataObjectType initialize="true">
-                        <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                    </ns5:DataObjectType>
-                </ns5:OracleExtensions>
-            </extensionElements>
-        </dataObject>
-        <dataObject name="APREStatus" id="APREStatus">
-            <extensionElements>
-                <ns5:OracleExtensions>
-                    <ns5:DataObjectType initialize="true">
-                        <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                    </ns5:DataObjectType>
-                </ns5:OracleExtensions>
-            </extensionElements>
-        </dataObject>
-        <dataObject name="OFCKStatus" id="OFCKStatus">
-            <extensionElements>
-                <ns5:OracleExtensions>
-                    <ns5:DataObjectType initialize="true">
-                        <ns5:TypeRef namespace="http://www.w3.org/2001/XMLSchema" type="string" isArray="false"/>
-                    </ns5:DataObjectType>
-                </ns5:OracleExtensions>
-            </extensionElements>
-        </dataObject>
     </process>
 </definitions>

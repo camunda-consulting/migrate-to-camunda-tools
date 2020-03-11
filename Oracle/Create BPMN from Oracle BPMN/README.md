@@ -21,4 +21,4 @@ And the corresponding conversion:
 ![](./readme_images/Converted.PNG)
 
 ## Notes and TODOs
-You may need to move sequence flows for better process diagram clarity as there will be overlap but rest assured the file has been converted. It has been tested with a limited number of Oracle examples and it may require tweaks depending on your process.
+You may need to move sequence flows for better process diagram clarity as there will be overlap but rest assured the file has been converted. The provided sample has had some of the xml removed for brevity. It has been tested with a limited number of Oracle examples and it may require tweaks depending on your process.
