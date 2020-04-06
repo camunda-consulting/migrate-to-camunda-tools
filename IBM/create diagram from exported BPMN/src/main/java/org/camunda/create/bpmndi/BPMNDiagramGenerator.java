@@ -9,14 +9,25 @@ import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,14 +47,32 @@ public class BPMNDiagramGenerator {
             // read a model from a file
             File file = new File(args[0]);
 
-            BpmnModelInstance modelInstance = Bpmn.readModelFromFile(file);
-            Definitions definitions = modelInstance.getDefinitions();
-
             // Read document for Xpath searches
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(file);
 
+            // Objects to search for and save references and coordinates
+            XPath xpath = XPathFactory.newInstance().newXPath();
+
+            // Remove malformed performers in IBM BPMN
+            XPathExpression searchRequest = xpath.compile("//*[contains(name(),'performer')]");
+            NodeList performerNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
+
+            for(int i = 0; i < performerNodes.getLength(); i++) {
+                Node node = performerNodes.item(i);
+                node.getParentNode().removeChild(node);
+            }
+
+            // Convert updated document to inputstream to be read by Camunda Model API
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Source xmlSource = new DOMSource(doc);
+            Result outputTarget = new StreamResult(outputStream);
+            TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
+            InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
+
+            BpmnModelInstance modelInstance = Bpmn.readModelFromStream(is);
+            Definitions definitions = modelInstance.getDefinitions();
             doc.getDocumentElement().normalize();
 
             // For the diagram, a diagram and a plane element need to be created. The plane is set in a diagram object and the diagram is added as a child element
@@ -155,10 +184,10 @@ public class BPMNDiagramGenerator {
             ArrayList<String> nextSourceRefs = new ArrayList<String>();
 
             // Objects to search for and save references and coordinates
-            XPath xpath = XPathFactory.newInstance().newXPath();
+            xpath = XPathFactory.newInstance().newXPath();
 
             // Get start events
-            XPathExpression searchRequest = xpath.compile("//*[contains(name(),'startEvent')]");
+            searchRequest = xpath.compile("//*[contains(name(),'startEvent')]");
             NodeList eventNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
 
             int x = 0;
