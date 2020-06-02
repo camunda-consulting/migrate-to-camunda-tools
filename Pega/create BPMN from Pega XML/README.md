@@ -14,7 +14,11 @@ and execute the following command using the resulting jar file
 
 ```java -jar BPMNModelGenerator-1.0-SNAPSHOT-jar-with-dependencies input-file output-file```
 
+A sample process in Pega:
+![](./readme_images/samplePegaProcessDiagram.png)
 
+And after conversion:
+![](./readme_images/ConvertedProcessFromPega.png)
 
 ## Notes and TODOs
 It has been tested with a limited number of Pega examples and it may require tweaks depending on your process.
