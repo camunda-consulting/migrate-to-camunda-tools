@@ -47,7 +47,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.camunda.bpmn.generator.BPMNGen</mainClass>
+                            <mainClass>org.camunda.bpmn.generator.BPMNGenFromTWX</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
