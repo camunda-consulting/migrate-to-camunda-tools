@@ -59,6 +59,14 @@ public class DiagramBPMN {
     }
   }
 
+
+  public Document getProcessXml() {
+    return processXml;
+  }
+
+  public void setProcessXml( Document processXml) {
+    this.processXml = processXml;
+  }
   /**
    * Return all SequenceFlow
    * @return NodesList of sequenceFlow
@@ -68,5 +76,12 @@ public class DiagramBPMN {
     NodeList nodes = processXml.getElementsByTagName("sequenceFlow");
     report.debug("DiagramBPMN.getSequenceFlow(): Found "+nodes.getLength());
   return nodes;
+  }
+
+  public NodeList getElementsByTagName(String tagName) {
+    // search all Sequence flow
+    NodeList nodes = processXml.getElementsByTagName(tagName);
+    report.debug("DiagramBPMN.getElementByTagName("+tagName+"): Found "+nodes.getLength());
+    return nodes;
   }
 }

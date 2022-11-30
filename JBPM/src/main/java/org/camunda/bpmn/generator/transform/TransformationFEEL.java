@@ -1,3 +1,11 @@
+/* ******************************************************************** */
+/*                                                                      */
+/*  TransformationFEEL                                                  */
+/*                                                                      */
+/*  Transform each simple groovy expression to FEEL                     */
+/* Expression:                                                          */
+/*   return processVar.equals("Hello") ==> processVar == "Hello"        */
+/* ******************************************************************** */
 package org.camunda.bpmn.generator.transform;
 
 import org.camunda.bpmn.generator.process.DiagramBPMN;

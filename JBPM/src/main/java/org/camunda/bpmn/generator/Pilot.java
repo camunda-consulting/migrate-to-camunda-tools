@@ -19,6 +19,7 @@ public class Pilot {
     String[] listProcessFile = pathIn.list();
     if (listProcessFile == null)
       return;
+    report.info("Found  "+listProcessFile.length+" files in ["+pathIn.getAbsolutePath()+"]");
 
     for (String oneProcessFile : listProcessFile) {
       if (! oneProcessFile.endsWith(".bpmn")) {
@@ -45,6 +46,7 @@ public class Pilot {
 
     }
     report.logAllOperations();
+    report.info("End, process produced in  ["+pathOut.getAbsolutePath()+"]");
   }
 
 }
