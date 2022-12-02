@@ -31,7 +31,7 @@ public class Report {
   }
 
   public void error(String message, Exception e) {
-    logger.error(message + " " + e);
+    error(message + " " + e);
   }
 
   public void debug(String message) {

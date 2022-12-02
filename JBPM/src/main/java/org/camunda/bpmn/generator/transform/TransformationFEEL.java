@@ -8,7 +8,7 @@
 /* ******************************************************************** */
 package org.camunda.bpmn.generator.transform;
 
-import org.camunda.bpmn.generator.process.DiagramBPMN;
+import org.camunda.bpmn.generator.process.BpmnDiagramToTransform;
 import org.camunda.bpmn.generator.report.Report;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -25,14 +25,14 @@ public class TransformationFEEL implements TransformationBpmnInt {
   }
 
   @Override
-  public DiagramBPMN apply(DiagramBPMN process, Report report) {
+  public BpmnDiagramToTransform apply(BpmnDiagramToTransform diagramBPMN, Report report) {
 
 
     Pattern equalsExpression = Pattern.compile(
         "return [a-zA-Z]+\\.equals\\([a-zA-Z_0-9\"]+\\)");//. represents single character
 
     try {
-      NodeList listSequences = process.getSequenceFlow();
+      NodeList listSequences = diagramBPMN.getSequenceFlow();
       for (int i = 0; i < listSequences.getLength(); i++) {
         Element sequenceFlow = (Element) listSequences.item(i);
         // the sequence contains a condition?
@@ -69,7 +69,7 @@ public class TransformationFEEL implements TransformationBpmnInt {
     } catch (Exception e) {
       report.error("During FEEL operation ", e);
     }
-    return process;
+    return diagramBPMN;
   }
 
   @Override

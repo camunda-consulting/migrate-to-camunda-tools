@@ -3,61 +3,46 @@
 /*  transformPositionBPMN                                                */
 /*                                                                      */
 /*  Repositionne each item to have a nice display                       */
-/* Algorithm come from BPMGenFromTWX
+/* Visit https://docs.camunda.org/manual/7.18/user-guide/model-api/bpmn-model-api/
 /* ******************************************************************** */
 package org.camunda.bpmn.generator.transform.draw;
 
-import org.camunda.bpm.model.bpmn.instance.BoundaryEvent;
+import org.camunda.bpm.model.bpmn.instance.BaseElement;
 import org.camunda.bpm.model.bpmn.instance.BpmnModelElementInstance;
-import org.camunda.bpm.model.bpmn.instance.BusinessRuleTask;
-import org.camunda.bpm.model.bpmn.instance.CallActivity;
-import org.camunda.bpm.model.bpmn.instance.EndEvent;
-import org.camunda.bpm.model.bpmn.instance.ErrorEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.EventBasedGateway;
-import org.camunda.bpm.model.bpmn.instance.ExclusiveGateway;
-import org.camunda.bpm.model.bpmn.instance.FlowNode;
-import org.camunda.bpm.model.bpmn.instance.InclusiveGateway;
-import org.camunda.bpm.model.bpmn.instance.IntermediateCatchEvent;
-import org.camunda.bpm.model.bpmn.instance.IntermediateThrowEvent;
+import org.camunda.bpm.model.bpmn.instance.Collaboration;
 import org.camunda.bpm.model.bpmn.instance.Lane;
-import org.camunda.bpm.model.bpmn.instance.MessageEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.ParallelGateway;
-import org.camunda.bpm.model.bpmn.instance.ScriptTask;
-import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
-import org.camunda.bpm.model.bpmn.instance.ServiceTask;
+import org.camunda.bpm.model.bpmn.instance.Participant;
+import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.StartEvent;
-import org.camunda.bpm.model.bpmn.instance.SubProcess;
-import org.camunda.bpm.model.bpmn.instance.Task;
-import org.camunda.bpm.model.bpmn.instance.TerminateEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.TextAnnotation;
-import org.camunda.bpm.model.bpmn.instance.TimerEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.UserTask;
-import org.camunda.bpm.model.bpmn.instance.Text;
 
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.Collaboration;
 import org.camunda.bpm.model.bpmn.instance.Definitions;
 import org.camunda.bpm.model.bpmn.instance.LaneSet;
-import org.camunda.bpm.model.bpmn.instance.Participant;
-import org.camunda.bpmn.generator.process.DiagramBPMN;
+import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+import org.camunda.bpm.model.xml.type.ModelElementType;
+import org.camunda.bpmn.generator.process.BpmnDiagramToTransform;
 import org.camunda.bpmn.generator.report.Report;
 import org.camunda.bpmn.generator.transform.TransformationBpmnInt;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.camunda.bpm.model.bpmn.instance.Process;
 
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -68,13 +53,31 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 public class TransformationDraw implements TransformationBpmnInt {
+
+  public static final int EVENT_HEIGHT = 36;
+  public static final int EVENT_WIDTH = 36;
+  public static final int EVENT_OFFSETY = 22;
+  public static final int ACTIVITY_HEIGHT = 80;
+  public static final int ACTIVITY_WIDTH = 100;
+
   @Override
   public String getName() {
     return "Draw BPMN diagram";
   }
 
+  // Keep it all context on the diagram
+  BpmnModelInstance modelInstance;
+  XPath xpath = XPathFactory.newInstance().newXPath();
+  Document docXML;
+  BpmnPlane plane;
+
   @Override
-  public DiagramBPMN apply(DiagramBPMN diagram, Report report) {
+  public String getReportOperations() {
+    return "redraw";
+  }
+
+  @Override
+  public BpmnDiagramToTransform apply(BpmnDiagramToTransform diagram, Report report) {
 
     // Create hash map to map ids in old file node objects with ids in new file
     HashMap<String, Object> idMap = new HashMap<>();
@@ -85,546 +88,86 @@ public class TransformationDraw implements TransformationBpmnInt {
     // Create another hash map for lanes as text annotations use relative y coordinates
     HashMap<String, Object> laneMap = new HashMap<>();
     try {
-      // Create BPMN model using Camunda Model APIs
-      BpmnModelInstance modelInstance = Bpmn.createEmptyModel();
+      docXML = diagram.getProcessXml();
 
-      Definitions definitions = modelInstance.newInstance(Definitions.class);
-      definitions.setTargetNamespace("http://camunda.org/examples");
-      modelInstance.setDefinitions(definitions);
+      // remove the current diagram
+      XPathExpression searchRequest = xpath.compile("//*[contains(name(),'bpmndi:BPMNDiagram')]");
+      NodeList diagramNodeXmlList = (NodeList) searchRequest.evaluate(docXML, XPathConstants.NODESET);
+      for (int i = 0; i < diagramNodeXmlList.getLength(); i++) {
+        Element diagramNodeXml = (Element) diagramNodeXmlList.item(i);
+        diagramNodeXml.getParentNode().removeChild(diagramNodeXml);
+      }
 
-      // For the diagram, a diagram and a plane element needs to be created. The plane is set in a diagram object and the diagram is added as a child element
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      XmlToOutputStream(docXML, byteArrayOutputStream);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+
+      modelInstance = Bpmn.readModelFromStream(inputStream);
+
+      // run the different process and build a tree for each item
+
+      Definitions definitions = modelInstance.getDefinitions();
+
+      /* ------------------
+      Collaboration. A collaboration contains a participant, and the participant is link to the process
+      The collaboration must be linked to the process to draw the border
+       */
+      List<Collaboration> collaborations = (List<Collaboration>) modelInstance.getModelElementsByType(
+          Collaboration.class);
+      ArrayList<Process> processes = (ArrayList<Process>) modelInstance.getModelElementsByType(Process.class);
+      List<Participant> participants = (List<Participant>) modelInstance.getModelElementsByType(Participant.class);
+
+
+
+      // For the diagram, a diagram and a plane element need to be created. The plane is set in a diagram object and the diagram is added as a child element
       BpmnDiagram bpmnDiagram = modelInstance.newInstance(BpmnDiagram.class);
-      BpmnPlane plane = modelInstance.newInstance(BpmnPlane.class);
+      int participantIndex=0;
 
+
+      int baseProcess = 0;
+      for (Process process : processes) {
+        plane = modelInstance.newInstance(BpmnPlane.class);
+        plane.setBpmnElement(process);
+
+        // ---------------------- associate the collaboration
+        switch (collaborations.size()) {
+        case 0:
+          // Search for process instead of a collaboration and set plane bpmn element to the process
+          if (processes.size() == 0) {
+            throw new Exception("Exception - neither collaboration nor process was found");
+          } else {
+            plane.setBpmnElement((BaseElement) processes.get(0));
+          }
+          break;
+
+        case 1:
+          plane.setBpmnElement((BaseElement) collaborations.get(0));
+          break;
+
+        default:
+          throw new Exception("Exception - more than one collaboration in BPMN input which is not allowed");
+        }
+
+
+        DrawShape drawShape = new DrawShape(plane, modelInstance);
+
+        Enveloppe enveloppeProcess = drawProcess(process, baseProcess, report);
+
+        if (participantIndex <= participants.size()) {
+          BpmnModelElementInstance element = participants.get(participantIndex);
+          drawShape.draw(element,
+              0,
+              baseProcess,
+              enveloppeProcess.height(),
+              enveloppeProcess.width(),
+              true);
+        }
+        baseProcess += enveloppeProcess.height()+20;
+
+
+      }
       bpmnDiagram.setBpmnPlane(plane);
       definitions.addChildElement(bpmnDiagram);
-
-      Process process = modelInstance.newInstance(Process.class);
-      process.setExecutable(true); // Want to make sure it is executable by default in Modeler
-
-      // Get pool, laneset, and lane information and add to process
-      // Look for pools. For IBM BPM pools are not used but a default one is defined behind the scenes. We'll add it here
-      NodeList poolList = diagram.getElementsByTagName("pool");
-      NodeList processlList = diagram.getElementsByTagName("process");
-
-      List<Element> listRootElements = new ArrayList<>();
-      for (int i = 0; i < poolList.getLength(); i++) {
-        listRootElements.add((Element) poolList.item(i));
-      }
-      for (int i = 0; i < processlList.getLength(); i++) {
-        listRootElements.add((Element) processlList.item(i));
-      }
-
-      if (listRootElements.isEmpty())
-        return diagram;
-
-      for (int i = 0; i < listRootElements.size(); i++) {
-        Element poolElement = listRootElements.get(i);
-        NodeList sizeList = poolElement.getElementsByTagName("size");
-
-        Collaboration collab = modelInstance.newInstance(Collaboration.class);
-
-        Participant participant = modelInstance.newInstance(Participant.class);
-        participant.setName("Pool title - please change");
-
-        definitions.addChildElement(collab);
-        definitions.addChildElement(process);
-
-        collab.addChildElement(participant);
-        participant.setProcess(process);
-
-        plane.setBpmnElement(collab);
-
-        Element sizeElement = (Element) sizeList.item(0);
-        Double width = Double.valueOf(sizeElement.getAttribute("w"));
-        Double height = Double.valueOf(sizeElement.getAttribute("h"));
-
-        // draw pool in diagram. If there are multiple pools the default space between is set at 2000 pixels. May need to revisit later
-        plane = DrawShape.drawShape(plane, modelInstance, participant, 0, 2000 * i, height, width, true);
-
-        LaneSet laneset = modelInstance.newInstance(LaneSet.class);
-
-        NodeList laneList = diagram.getElementsByTagName("lane");
-
-        if (laneList.getLength() > 0) { // IBM BPM requires at least 1 lane so length should at least be 1
-          process.addChildElement(laneset);
-          int yLane = 0; // y coordinate for lane
-          for (int j = 0; j < laneList.getLength(); j++) {
-            Element laneElement = (Element) laneList.item(j);
-
-            NodeList nameList = laneElement.getElementsByTagName("name");
-            Lane lane = modelInstance.newInstance(Lane.class);
-            lane.setName(nameList.item(0).getTextContent());
-            laneset.addChildElement(lane);
-
-            NodeList heightList = laneElement.getElementsByTagName("height");
-            // Should only be one height value in list
-            height = Double.valueOf(heightList.item(0).getTextContent());
-            // Lane is offset in pool by 30 pixels though it can be set to any value
-            plane = DrawShape.drawShape(plane, modelInstance, lane, 30, yLane, height, width - 30, true);
-
-            FlowNodeInfo fni = new FlowNodeInfo(lane.getId(), 30.0, Double.valueOf(yLane), "Lane");
-            laneMap.put(laneElement.getAttribute("id"), fni);
-
-            // Now get the process nodes aka flow objects and add to process and draw them using their original coordinates as given in the xml
-            NodeList flowObjectList = laneElement.getElementsByTagName("flowObject");
-
-            for (int h = 0; h < flowObjectList.getLength(); h++) {
-              Element objectElement = (Element) flowObjectList.item(h);
-
-              FlowNode flowNode = modelInstance.newInstance(Task.class);
-
-              switch (objectElement.getAttribute(
-                  "componentType")) { // There are three main categories of flowObjects - Activity, Gateway, and Event
-
-              case ("Activity"):
-                NodeList activityNameList = objectElement.getElementsByTagName("name");
-                String taskName = activityNameList.item(0).getTextContent();
-
-                NodeList bpmnTaskTypeList = objectElement.getElementsByTagName("bpmnTaskType");
-                String bpmnTaskType = bpmnTaskTypeList.item(0).getTextContent();
-
-                NodeList locationList = objectElement.getElementsByTagName("location");
-
-                switch (bpmnTaskType) {
-
-                case "1": // User task
-                  flowNode = modelInstance.newInstance(UserTask.class);
-                  break;
-
-                case "2": // Business rule task
-                  flowNode = modelInstance.newInstance(BusinessRuleTask.class);
-                  break;
-
-                case "3": // Service task
-                  flowNode = modelInstance.newInstance(ServiceTask.class);
-                  break;
-
-                case "4": // Script task
-                  flowNode = modelInstance.newInstance(ScriptTask.class);
-                  break;
-
-                case "5": // Call activity
-                  flowNode = modelInstance.newInstance(CallActivity.class);
-                  break;
-
-                case "6": // Sub process
-                  flowNode = modelInstance.newInstance(SubProcess.class);
-                  break;
-
-                case "7": // Event sub process
-                  flowNode = modelInstance.newInstance(SubProcess.class);
-                  flowNode.setAttributeValue("triggeredByEvent", "true");
-                  break;
-
-                default:
-                }
-
-                flowNode.setName(taskName);
-                Element locationElement = (Element) locationList.item(0);
-                Double x = Double.valueOf(locationElement.getAttribute("x"));
-                Double y = Double.valueOf(locationElement.getAttribute("y"));
-
-                process.addChildElement(flowNode);
-                plane = DrawShape.drawShape(plane, modelInstance, flowNode, x, y + yLane, 80, 100, true);
-                // FlowNodeInfo is an object that will contain the new flow node id in the generated BPMN, the x,y coordinates of each node, and the type of node
-                fni = new FlowNodeInfo(flowNode.getId(), x, y + yLane, "Activity");
-                idMap.put(objectElement.getAttribute("id"), fni);
-
-                // Look for boundary events (aka attachedEvents), determine if it is interrupting or not (cancelActivity),
-                // their relative position on the activity (of 12 possible), and what action is associated with the event (actionType)
-                NodeList attachedList = objectElement.getElementsByTagName("attachedEvent");
-
-                for (int k = 0; k < attachedList.getLength(); k++) {
-                  Element attachedElement = (Element) attachedList.item(k);
-                  NodeList boundaryNameList = attachedElement.getElementsByTagName("name");
-                  String boundaryName = boundaryNameList.item(0).getTextContent();
-
-                  NodeList interruptingList = attachedElement.getElementsByTagName("cancelActivity");
-                  NodeList positionList = attachedElement.getElementsByTagName("positionId");
-                  NodeList actionTypeList = attachedElement.getElementsByTagName("actionType");
-
-                  String interrupting = interruptingList.item(0).getTextContent();
-                  String position = positionList.item(0).getTextContent();
-                  String actionType = actionTypeList.item(0).getTextContent();
-
-                  BpmnModelElementInstance boundaryElementInstance = modelInstance.newInstance(BoundaryEvent.class);
-                  boundaryElementInstance.setAttributeValue("name", boundaryName);
-                  boundaryElementInstance.setAttributeValue("attachedToRef", flowNode.getAttributeValue("id"));
-                  boundaryElementInstance.setAttributeValue("cancelActivity", interrupting);
-                  process.addChildElement(boundaryElementInstance);
-
-                  Double xBound = Double.valueOf(0);
-                  Double yBound = Double.valueOf(0);
-
-                  // Find the relative position of the boundary event and add or subtract from base x,y of node
-                  switch (position) {
-                  case "leftCenter":
-                    xBound = x - 18;
-                    yBound = y + 22;
-                    break;
-
-                  case "leftTop":
-                    xBound = x - 18;
-                    yBound = y + 2;
-                    break;
-
-                  case "leftBottom":
-                    xBound = x - 18;
-                    yBound = y + 44;
-                    break;
-
-                  case "bottomCenter":
-                    xBound = x + 32;
-                    yBound = y + 62;
-                    break;
-
-                  case "bottomRight":
-                    xBound = x + 62;
-                    yBound = y + 62;
-                    break;
-
-                  case "bottomLeft":
-                    xBound = x + 2;
-                    yBound = y + 62;
-                    break;
-
-                  case "rightCenter":
-                    xBound = x + 82;
-                    yBound = y + 22;
-                    break;
-
-                  case "rightTop":
-                    xBound = x + 82;
-                    yBound = y + 2;
-                    break;
-
-                  case "rightBottom":
-                    xBound = x + 82;
-                    yBound = y + 44;
-                    break;
-
-                  case "topCenter":
-                    xBound = x + 32;
-                    yBound = y - 18;
-                    break;
-
-                  case "topRight":
-                    xBound = x + 62;
-                    yBound = y - 18;
-                    break;
-
-                  case "topLeft":
-                    xBound = x + 2;
-                    yBound = y - 18;
-                    break;
-
-                  default:
-                  }
-
-                  // Find type of event
-                  switch (actionType) {
-
-                  case "1": // message boundary
-                    MessageEventDefinition med = modelInstance.newInstance(MessageEventDefinition.class);
-                    boundaryElementInstance.addChildElement(med);
-                    break;
-
-                  case "2": // timer boundary
-                    TimerEventDefinition ted = modelInstance.newInstance(TimerEventDefinition.class);
-                    boundaryElementInstance.addChildElement(ted);
-                    break;
-
-                  case "5": // error boundary
-                    ErrorEventDefinition eed = modelInstance.newInstance(ErrorEventDefinition.class);
-                    boundaryElementInstance.addChildElement(eed);
-                    break;
-
-                  default:
-                  }
-                  // Check for interrupting/non-interrupting behavior and add it
-                  NodeList doCloseTaskList = attachedElement.getElementsByTagName("doCloseTask");
-                  Element doCloseTaskElement = (Element) doCloseTaskList.item(0);
-                  boundaryElementInstance.setAttributeValue("cancelActivity", doCloseTaskElement.getTextContent());
-
-                  plane = DrawShape.drawShape(plane, modelInstance, boundaryElementInstance, xBound, yBound + yLane, 36,
-                      36, true);
-                  fni = new FlowNodeInfo(boundaryElementInstance.getAttributeValue("id"), xBound, yBound + yLane,
-                      "BoundaryEvent");
-                  boundaryMap.put(attachedElement.getAttribute("id"), fni);
-                }
-                break;
-
-              case ("Gateway"):
-                nameList = objectElement.getElementsByTagName("name");
-                String gatewayName = nameList.item(0).getTextContent();
-
-                NodeList gatewayTypeList = objectElement.getElementsByTagName("gatewayType");
-                String gatewayType = gatewayTypeList.item(0).getTextContent();
-
-                locationList = objectElement.getElementsByTagName("location");
-
-                switch (gatewayType) {
-
-                case "1": // Exclusive
-                  flowNode = modelInstance.newInstance(ExclusiveGateway.class);
-                  break;
-
-                case "2": // Event based gateway
-                  flowNode = modelInstance.newInstance(EventBasedGateway.class);
-                  break;
-
-                case "3": // Inclusive
-                  flowNode = modelInstance.newInstance(InclusiveGateway.class);
-                  break;
-
-                case "5": // Parallel
-                  flowNode = modelInstance.newInstance(ParallelGateway.class);
-                  break;
-
-                default:
-                }
-
-                flowNode.setAttributeValue("name", gatewayName);
-                locationElement = (Element) locationList.item(0);
-                x = Double.valueOf(locationElement.getAttribute("x"));
-                y = Double.valueOf(locationElement.getAttribute("y"));
-
-                process.addChildElement(flowNode);
-                plane = DrawShape.drawShape(plane, modelInstance, flowNode, x, y + yLane, 50, 50, true);
-                fni = new FlowNodeInfo(flowNode.getId(), x, y + yLane, "Gateway");
-                idMap.put(objectElement.getAttribute("id"), fni);
-                break;
-
-              case ("Event"):
-                nameList = objectElement.getElementsByTagName("name");
-                String eventName = nameList.item(0).getTextContent();
-
-                NodeList eventTypeList = objectElement.getElementsByTagName("eventType");
-                String eventType = eventTypeList.item(0).getTextContent();
-
-                locationList = objectElement.getElementsByTagName("location");
-
-                switch (eventType) {
-
-                case "1": // start event
-                  flowNode = modelInstance.newInstance(StartEvent.class);
-                  NodeList eventActionList = objectElement.getElementsByTagName("EventAction");
-                  if (eventActionList.getLength() > 0) { // make it a message start event
-                    MessageEventDefinition med = modelInstance.newInstance(MessageEventDefinition.class);
-                    flowNode.addChildElement(med);
-                  }
-                  break;
-
-                case "2": // end event
-                  flowNode = modelInstance.newInstance(EndEvent.class);
-                  eventActionList = objectElement.getElementsByTagName("actionType");
-                  if (eventActionList.getLength() > 0) {
-                    Element eventElement = (Element) eventActionList.item(0);
-                    String type = eventElement.getTextContent();
-
-                    switch (type) {
-                    case "12": // Message throw end
-                      MessageEventDefinition med = modelInstance.newInstance(MessageEventDefinition.class);
-                      flowNode.addChildElement(med);
-                      break;
-
-                    case "5": // Error end
-                      ErrorEventDefinition eed = modelInstance.newInstance(ErrorEventDefinition.class);
-                      flowNode.addChildElement(eed);
-                      break;
-
-                    case "8": // Terminate
-                      TerminateEventDefinition ted = modelInstance.newInstance(TerminateEventDefinition.class);
-                      flowNode.addChildElement(ted);
-                      break;
-
-                    default:
-                    }
-
-                  }
-                  break;
-
-                case "3": // Some sort of intermediate event
-                  eventActionList = objectElement.getElementsByTagName("actionType");
-                  if (eventActionList.getLength() > 0) {
-                    Element eventElement = (Element) eventActionList.item(0);
-                    String type = eventElement.getTextContent();
-                    switch (type) {
-
-                    case "1": // catch intermediate event
-                      flowNode = modelInstance.newInstance(IntermediateCatchEvent.class);
-                      MessageEventDefinition med = modelInstance.newInstance(MessageEventDefinition.class);
-                      flowNode.addChildElement(med);
-                      break;
-
-                    case "12": // throw intermediate event
-                      flowNode = modelInstance.newInstance(IntermediateThrowEvent.class);
-                      med = modelInstance.newInstance(MessageEventDefinition.class);
-                      flowNode.addChildElement(med);
-                      break;
-
-                    case "2": // timer intermediate event
-                      flowNode = modelInstance.newInstance(IntermediateThrowEvent.class);
-                      TimerEventDefinition ted = modelInstance.newInstance(TimerEventDefinition.class);
-                      flowNode.addChildElement(ted);
-                      break;
-
-                    default: // Includes tracking events which have no analog in Camunda
-                      flowNode = modelInstance.newInstance(IntermediateThrowEvent.class);
-                    }
-
-                  } else { // Just a none intermediate event though it doesn't seem possible in IBM BPM
-                    flowNode = modelInstance.newInstance(IntermediateThrowEvent.class);
-                  }
-
-                default:
-                }
-
-                flowNode.setAttributeValue("name", eventName);
-                locationElement = (Element) locationList.item(0);
-                x = Double.valueOf(locationElement.getAttribute("x"));
-                y = Double.valueOf(locationElement.getAttribute("y"));
-
-                process.addChildElement(flowNode);
-                plane = DrawShape.drawShape(plane, modelInstance, flowNode, x, y + yLane, 36, 36, true);
-                fni = new FlowNodeInfo(flowNode.getId(), x, y + yLane, "Event");
-                idMap.put(objectElement.getAttribute("id"), fni);
-
-                break;
-              default:
-              }
-            }
-            yLane += height; // Add height of for next lane y coordinate
-          }
-        }
-      }
-
-      // Next, look for diagram annotations
-      NodeList noteList = diagram.getElementsByTagName("note");
-      for (int i = 0; i < noteList.getLength(); i++) {
-        Element noteElement = (Element) noteList.item(i);
-        NodeList documentation = noteElement.getElementsByTagName("documentation");
-        TextAnnotation textA = modelInstance.newInstance(TextAnnotation.class);
-        Text text = modelInstance.newInstance(Text.class);
-        text.setTextContent(documentation.item(0).getTextContent());
-        textA.setText(text);
-        process.addChildElement(textA);
-
-        // Need to get y coordinate of lane associated with annotation as annotation y coordinate is relative to lane and not absolute
-        NodeList laneList = noteElement.getElementsByTagName("BpmnObjectId");
-        Element laneElement = (Element) laneList.item(0);
-        XPathExpression searchRequest = null;
-        XPath xpath = XPathFactory.newInstance().newXPath();
-
-        FlowNodeInfo fni = (FlowNodeInfo) laneMap.get(laneElement.getAttribute("id"));
-
-        NodeList locationList = noteElement.getElementsByTagName("location");
-        Element locationElement = (Element) locationList.item(0);
-        Double x = Double.valueOf(locationElement.getAttribute("x"));
-        Double y = Double.valueOf(locationElement.getAttribute("y"));
-        NodeList sizeList = noteElement.getElementsByTagName("size");
-        Element sizeElement = (Element) sizeList.item(0);
-        Double height = Double.valueOf(sizeElement.getAttribute("h"));
-        Double width = Double.valueOf(sizeElement.getAttribute("w"));
-        plane = DrawShape.drawShape(plane, modelInstance, textA, x, y + fni.getY(), height, width, true);
-      }
-
-      // Next, look through flow nodes and determine source and target as well as the relative position of the flow attachment points
-      XPathExpression searchRequest = null;
-      XPath xpath = XPathFactory.newInstance().newXPath();
-
-      searchRequest = xpath.compile("//flow[@id]");
-
-      NodeList originalFlowNodes = (NodeList) searchRequest.evaluate(diagram.getProcessXml(), XPathConstants.NODESET);
-      // Variables for label and label display boolean
-      Boolean nameVisible = Boolean.TRUE;
-      String sequenceLabel = "";
-
-      for (int i = 0; i < originalFlowNodes.getLength(); i++) {
-        Element originalElement = (Element) originalFlowNodes.item(i);
-        String flowId = originalElement.getAttribute("id");
-        // Find if label needs to be displayed
-        NodeList labelVisible = originalElement.getElementsByTagName("nameVisible");
-        nameVisible = Boolean.valueOf(labelVisible.item(0).getTextContent());
-        // Get name of label
-        NodeList nameList = originalElement.getElementsByTagName("name");
-        if (nameList.getLength() > 0) {
-          sequenceLabel = nameList.item(0).getTextContent();
-        }
-        // Find a target of sequence flow
-        searchRequest = xpath.compile("//inputPort/flow[@ref='" + flowId + "']");
-        NodeList inputNodes = (NodeList) searchRequest.evaluate(diagram.getProcessXml(), XPathConstants.NODESET);
-
-        // Should only have one input. Get flowObject node from inputPort node
-        // Then get id from original flowObject to look up id in new model
-        // This becomes the target of the sequence flow
-        Element inputElement = (Element) inputNodes.item(0);
-        // Get relative position on target node for sequence flow attachment point
-        Element parentNode = (Element) inputElement.getParentNode();
-        NodeList positionIds = parentNode.getElementsByTagName("positionId");
-        String targetPosition = positionIds.item(0).getTextContent();
-        // Get original flow node, look up id, and retrieve new flow node in HashMap along with other info regarding node in new file
-        Node flowObjectNode = inputElement.getParentNode().getParentNode();
-        NamedNodeMap attributes = flowObjectNode.getAttributes();
-        Node originalTargetId = attributes.getNamedItem("id");
-        FlowNodeInfo fni = (FlowNodeInfo) idMap.get(originalTargetId.getTextContent());
-        String targetId = fni.getId();
-        String targetType = fni.getType();
-        Double targetX = fni.getX();
-        Double targetY = fni.getY();
-
-        // Now do the same for the source ref
-        searchRequest = xpath.compile("//outputPort/flow[@ref='" + flowId + "']");
-        NodeList outputNodes = (NodeList) searchRequest.evaluate(diagram.getProcessXml(), XPathConstants.NODESET);
-
-        Element outputElement = (Element) outputNodes.item(0);
-        parentNode = (Element) outputElement.getParentNode();
-        positionIds = parentNode.getElementsByTagName("positionId");
-        String sourcePosition = positionIds.item(0).getTextContent();
-        flowObjectNode = outputElement.getParentNode().getParentNode();
-        attributes = flowObjectNode.getAttributes();
-        Node originalSourceId = attributes.getNamedItem("id");
-        fni = (FlowNodeInfo) idMap.get(originalSourceId.getTextContent());
-        String sourceId = null;
-        String sourceType = null;
-        Double sourceX = null;
-        Double sourceY = null;
-        if (fni != null) {
-          sourceId = fni.getId(); // Means it's a node
-          sourceType = fni.getType();
-          sourceX = fni.getX();
-          sourceY = fni.getY();
-        } else { // Means it's a boundary event
-          fni = (FlowNodeInfo) boundaryMap.get(originalSourceId.getTextContent());
-          sourceId = fni.getId();
-          sourceType = fni.getType();
-          sourceX = fni.getX();
-          sourceY = fni.getY();
-        }
-        FlowNode targetFlowNode = modelInstance.getModelElementById(targetId);
-        FlowNode sourceFlowNode = modelInstance.getModelElementById(sourceId);
-
-        // Now create the sequence flows, add to model, and then add to diagram
-        SequenceFlow sequenceFlow = modelInstance.newInstance(SequenceFlow.class);
-
-        if (sourceFlowNode != null && targetFlowNode != null) {
-          process.addChildElement(sequenceFlow);
-          sequenceFlow.setSource(sourceFlowNode);
-          sourceFlowNode.getOutgoing().add(sequenceFlow);
-          sequenceFlow.setTarget(targetFlowNode);
-          targetFlowNode.getIncoming().add(sequenceFlow);
-
-          if (nameVisible) {
-            sequenceFlow.setName(sequenceLabel);
-          }
-
-          plane = DrawFlow.drawFlow(plane, modelInstance, sequenceFlow, sourceType, sourcePosition, sourceX, sourceY,
-              targetType, targetPosition, targetX, targetY);
-
-        }
-
-      }
 
       Bpmn.validateModel(modelInstance);
       // bpmn.doWriteModelToOutputStream
@@ -642,10 +185,449 @@ public class TransformationDraw implements TransformationBpmnInt {
 
   }
 
-  @Override
-  public String getReportOperations() {
-    return "redraw";
+  public record Enveloppe(int height, int width ){};
+
+  /**
+   * Draw a process
+   *
+   * @param process
+   * @param baseProcess
+   * @param report
+   * @return
+   * @throws Exception
+   */
+  private Enveloppe drawProcess(Process process, int baseProcess, Report report) throws Exception {
+    int baseLane = 0;
+    TreeProcess treeProcess = new TreeProcess();
+    DrawFlow drawFlow = new DrawFlow(plane, modelInstance);
+    DrawShape drawShape = new DrawShape(plane, modelInstance);
+
+    // First, place all elements, don't take care of lane
+    ModelElementType startEventType = modelInstance.getModel().getType(StartEvent.class);
+    Collection<ModelElementInstance> startEvents = modelInstance.getModelElementsByType(startEventType);
+
+
+    for (ModelElementInstance startEvent : startEvents) {
+      TreeProcess.TreeNode startNode = treeProcess.addNode(treeProcess.getRoot(), startEvent);
+      startNode.setSize(EVENT_HEIGHT, EVENT_WIDTH);
+
+      // Explore from the starter and populate the tree
+      LinkedList<ModelElementInstance> queue = new LinkedList();
+      queue.add(startEvent);
+      while (!queue.isEmpty()) {
+        ModelElementInstance item = queue.poll();
+        report.info(
+            "   Detect[" + item.getAttributeValue("id") + "] type[" + item.getElementType().getTypeName() + "]");
+
+        TreeProcess.TreeNode itemNode = treeProcess.getNodeByElement(item);
+        XPathExpression searchRequest = xpath.compile("//*[@sourceRef='" + item.getAttributeValue("id") + "']");
+        NodeList nextItems = (NodeList) searchRequest.evaluate(docXML, XPathConstants.NODESET);
+        for (int i = 0; i < nextItems.getLength(); i++) {
+          Element nextItemXml = (Element) nextItems.item(i);
+          // the NextItem is a sequenceFlow
+          if (nextItemXml.getNodeName().equals("bpmn:sequenceFlow")) {
+            ModelElementInstance nextItem = modelInstance.getModelElementById(nextItemXml.getAttribute("targetRef"));
+            if (treeProcess.contains(nextItem)) {
+              continue;
+            }
+            // add in the tree
+            TreeProcess.TreeNode nextTreeNode = treeProcess.addNode(itemNode, nextItem);
+            if (nextTreeNode.isTask()) {
+              nextTreeNode.setSize(ACTIVITY_HEIGHT, ACTIVITY_WIDTH);
+            }
+            if (nextTreeNode.isEvent() || nextTreeNode.isGateway()) {
+              nextTreeNode.setSize(EVENT_HEIGHT, EVENT_WIDTH);
+            }
+
+            if (nextTreeNode.getElement()!=null && nextTreeNode.getWidth() == 0)
+              nextTreeNode.setSize(ACTIVITY_HEIGHT, ACTIVITY_WIDTH);
+            queue.add(nextItem);
+          }
+        }
+      }
+
+      // Now, run the tree to calculate a X,Y on each node
+
+      processTree(treeProcess.getRoot(), 20, 50+baseProcess);
+    }
+    // Build a Shape for each item now
+    int maxWidth=0;
+    int maxHeight=0;
+    for (TreeProcess.TreeNode treeNode : treeProcess.getAllElements().values()) {
+      if (treeNode.getElement() != null) {
+        drawShape.draw( treeNode.getElement(), treeNode.getPosition().x(),
+            treeNode.getPosition().y(), treeNode.getHeight(), treeNode.getWidth(), true);
+        maxWidth = Math.max(maxWidth, treeNode.getPosition().x()+treeNode.getWidth());
+        maxHeight = Math.max(maxHeight, treeNode.getPosition().y()+treeNode.getHeight());
+      }
+    }
+
+    XPathExpression searchRequest = xpath.compile("//*[contains(name(),'sequenceFlow')]");
+    NodeList sfNodes = (NodeList) searchRequest.evaluate(docXML, XPathConstants.NODESET);
+
+    for (int i = 0; i < sfNodes.getLength(); i++) {
+      Element sfElement = (Element) sfNodes.item(i);
+      drawFlow.draw(sfElement, treeProcess);
+    }
+
+    // Lanes impact the position,
+
+    for (LaneSet lane : process.getLaneSets()) {
+      int baseSubLane = 0;
+      for (Lane subLane : lane.getLanes()) {
+        int heighSubLane = drawLane(subLane, treeProcess, baseSubLane + baseLane);
+        baseSubLane += heighSubLane;
+      }
+      baseLane += baseSubLane;
+    }
+    return new Enveloppe(maxHeight + 60, maxWidth+50);
+
   }
+
+  /**
+   * process tree to give a position on each item
+   *
+   * @param treenode
+   * @param baseX
+   * @param baseY
+   * @return the heigth of the tree
+   */
+  private int processTree(TreeProcess.TreeNode treenode, int baseX, int baseY) {
+    treenode.setPosition(baseX, baseY);
+
+    // Only the root treenode should not have a element
+    // Attention, for an event, just move down the position by the oversetY
+    if (treenode.isEvent() || treenode.isGateway()) {
+      treenode.setPosition(baseX, baseY + EVENT_OFFSETY);
+    }
+
+    int childHeight=0;
+    for (TreeProcess.TreeNode childNode : treenode.getChildren()) {
+      childHeight+= processTree(childNode, baseX + treenode.getWidth() + 50, baseY + childHeight);
+
+    }
+    return Math.max(treenode.getHeight() + 30, childHeight);
+  }
+
+  private int drawLane(Lane lane, TreeProcess treeProcess, int baseLane) {
+    // lane may have lane
+
+    return baseLane + 10;
+  }
+  // Draw the lane
+  // consider only starter from the lane
+
+        /*
+
+
+
+
+      if(participants.size() > 0) {
+        for (int i = 0; i < participants.size(); i++) {
+          BpmnModelElementInstance element = participants.get(i);
+          plane = DrawShape.drawShape(plane, modelInstance, element, 70, 100 + (1000 * i) + (i > 0 ? 100 : 0), 1000, 1530, true);
+          poolRefPoints.put(participants.get(i).getId(), new LanePoolReferencePoints(70, 100 + (1000 * i) + (i > 0 ? 100 : 0)));
+
+          // Get process and then the lane sets
+          int counter = 0;
+          Collection<LaneSet> laneSets = participants.get(i).getProcess().getLaneSets();
+          Iterator<LaneSet> iter = laneSets.iterator();
+          while (iter.hasNext()) {
+            LaneSet ls = iter.next();
+            Collection<Lane> lanes = ls.getLanes();
+            Iterator<Lane> iterLane = lanes.iterator();
+            while (iterLane.hasNext()) {
+              Lane lane = iterLane.next();
+              element = lane;
+              // Get flow nodes in lane and create map entries
+              Collection<FlowNode> flowNodes = lane.getFlowNodeRefs();
+
+
+
+
+
+
+
+
+      // Set collaboration attribute on plane. There should only be one collaboration if there is any
+      ArrayList<Collaboration> collaborations = (ArrayList<Collaboration>) modelInstance.getModelElementsByType(Collaboration.class);
+
+      switch (collaborations.size()) {
+      case 0:
+        // Search for process instead of a collaboration and set plane bpmn element to the process
+        ArrayList<Process> processes = (ArrayList<Process>) modelInstance.getModelElementsByType(Process.class);
+        if(processes.size() == 0) {
+          throw new Exception("Exception - neither collaboration nor process was found");
+        } else {
+          plane.setBpmnElement((BaseElement) processes.get(0));
+        }
+        break;
+
+      case 1:
+        plane.setBpmnElement((BaseElement) collaborations.get(0));
+        break;
+
+      default :
+        throw new Exception("Exception - more than one collaboration in BPMN input which is not allowed");
+      }
+
+      // Create a map of Pool and Lane reference points in order to draw the correct shapes in the correct lane
+      HashMap<String, LanePoolReferencePoints> poolRefPoints = new HashMap<>();
+      HashMap<String, LanePoolReferencePoints> laneRefPoints = new HashMap<>();
+
+      // Create a map of elements and their associated lanes if lanes are detected
+      HashMap<String, String> laneElementContent = new HashMap<>();
+
+      // Draw pools (aka participants) - need to calculate size based on the number of swimlanes
+      ArrayList<Participant> participants = (ArrayList<Participant>) modelInstance.getModelElementsByType(Participant.class);
+
+      // Some vendors do not use pools. If they do, add the pool and any lanes. If they don't, just add lanes (the else portion)
+      if(participants.size() > 0) {
+        for (int i = 0; i < participants.size(); i++) {
+          BpmnModelElementInstance element = participants.get(i);
+          plane = DrawShape.drawShape(plane, modelInstance, element, 70, 100 + (1000 * i) + (i > 0 ? 100 : 0), 1000, 1530, true);
+          poolRefPoints.put(participants.get(i).getId(), new LanePoolReferencePoints(70, 100 + (1000 * i) + (i > 0 ? 100 : 0)));
+
+          // Get process and then the lane sets
+          int counter = 0;
+          Collection<LaneSet> laneSets = participants.get(i).getProcess().getLaneSets();
+          Iterator<LaneSet> iter = laneSets.iterator();
+          while (iter.hasNext()) {
+            LaneSet ls = iter.next();
+            Collection<Lane> lanes = ls.getLanes();
+            Iterator<Lane> iterLane = lanes.iterator();
+            while (iterLane.hasNext()) {
+              Lane lane = iterLane.next();
+              element = lane;
+              // Get flow nodes in lane and create map entries
+              Collection<FlowNode> flowNodes = lane.getFlowNodeRefs();
+              Iterator<FlowNode> iterFn = flowNodes.iterator();
+              while(iterFn.hasNext()) {
+                FlowNode fn = iterFn.next();
+                laneElementContent.put(fn.getId(),lane.getId());
+              }
+              // Draw lane
+              plane = DrawShape.drawShape(plane, modelInstance, element, 100, 100 + (500 * counter) + (i > 0 ? 1100 * i : 0), 500, 1500, true);
+              laneRefPoints.put(lane.getId(), new LanePoolReferencePoints(0, 300 * counter ));
+              counter++;
+            }
+          }
+        }
+      } else { // If no collaboration defined then check for processes, lane sets, and lanes
+        int counter = 0;
+        ArrayList<Process> processes = (ArrayList<Process>) modelInstance.getModelElementsByType(
+            Process.class);
+        Iterator<Process> iterProcess = processes.iterator();
+        for (Iterator<Process> it = processes.iterator(); it.hasNext(); ) {
+          Process process = it.next();
+          Collection<LaneSet> laneSets = process.getLaneSets();
+          Iterator<LaneSet> iterLaneSets = laneSets.iterator();
+          while (iterLaneSets.hasNext()) {
+            Collection<Lane> lanes = iterLaneSets.next().getLanes();
+            Iterator<Lane> iterLanes = lanes.iterator();
+            while (iterLanes.hasNext()) {
+              Lane lane = iterLanes.next();
+              BpmnModelElementInstance element = lane;
+              // Get flow nodes in lane and create map entries
+              Collection<FlowNode> flowNodes = lane.getFlowNodeRefs();
+              Iterator<FlowNode> iterFn = flowNodes.iterator();
+              while(iterFn.hasNext()) {
+                FlowNode fn = iterFn.next();
+                laneElementContent.put(fn.getId(),lane.getId());
+              }
+              // Draw lane
+              plane = DrawShape.drawShape(plane, modelInstance, element, 100, 100 + (500 * counter), 500, 1500, true);
+              laneRefPoints.put(lane.getId(), new LanePoolReferencePoints(0, 500 * counter));
+              counter++;
+            }
+          }
+        }
+      }
+
+      // Create a hash map of the x and y coordinates of the start and endpoints of each shape to be a reference later on for the sequence flows.
+      // As we add shapes we'll use the id of each element as a key and save the coordinates
+      HashMap<String, SequenceReferencePoints> refPoints = new HashMap<>();
+
+      // An array for shape source references to place process shapes in relative sequential order
+      ArrayList<String> sourceRefs = new ArrayList<String>();
+      ArrayList<String> nextSourceRefs = new ArrayList<String>();
+
+      // Objects to search for and save references and coordinates
+      xpath = XPathFactory.newInstance().newXPath();
+
+      // Get start events
+      searchRequest = xpath.compile("//*[contains(name(),'startEvent')]");
+      NodeList eventNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
+
+      int x = 0;
+      // Begin diagram by drawing start events
+      for (int i = 0; i < eventNodes.getLength(); i++) {
+        Element eElement = (Element) eventNodes.item(i);
+        BpmnModelElementInstance element = modelInstance.getModelElementById(eElement.getAttribute("id"));
+        double xLane = getLaneXOffset(laneElementContent, laneRefPoints, eElement.getAttribute("id"));
+        double yLane = getLaneYOffset(laneElementContent, laneRefPoints, eElement.getAttribute("id"));
+        plane = DrawShape.drawShape(plane, modelInstance, element, xLane + 200, yLane + 200 + (200*i), 36, 36, false );
+        refPoints.put(eElement.getAttribute("id"), new SequenceReferencePoints(xLane + 200, (yLane + 220 + i * 200),xLane + 236,(yLane + 220 + i * 200)));
+        sourceRefs.add(eElement.getAttribute("id"));
+      }
+
+      x += 180;
+
+      // Draw next shapes
+      while (sourceRefs.size() > 0) {
+        // Move over 180 pixels to draw the next set of shapes
+        x += 180;
+        // y will determine the y axis of shape placement and the set to zero at the start of each run
+        int yOffset = 0;
+
+        for (int i = 0; i < sourceRefs.size(); i++) {
+          searchRequest = xpath.compile("//*[@sourceRef='" + sourceRefs.get(i) + "']");
+          NodeList nextShapes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
+
+          for (int y = 0; y < nextShapes.getLength(); y++) {
+            Element tElement = (Element) nextShapes.item(y);
+            xpath = XPathFactory.newInstance().newXPath();
+            searchRequest = xpath.compile("//*[@id='" + tElement.getAttribute("targetRef") + "']");
+            NodeList shapes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
+
+            for (int z = 0; z < shapes.getLength(); z++) {
+              Element sElement = (Element) shapes.item(z);
+              if (!refPoints.containsKey(sElement.getAttribute("id"))) {
+                nextSourceRefs.add(sElement.getAttribute("id"));
+
+                String type = sElement.getNodeName();
+
+                switch (type) {
+                case ("userTask"):
+                case ("bpmn:userTask"):
+                case ("serviceTask"):
+                case ("bpmn:serviceTask"):
+                case ("businessRuleTask"):
+                case ("bpmn:businessRuleTask"):
+                case ("task"):
+                case ("bpmn:task"):
+                case ("receiveTask"):
+                case ("bpmn:receiveTask"):
+                case ("sendTask"):
+                case ("bpmn:sendTask"):
+                case ("scriptTask"):
+                case ("bpmn:scriptTask"):
+                case ("manualTask"):
+                case ("bpmn:manualTask"):
+                case ("callActivity"):
+                case ("bpmn:callActivity"):
+                  BpmnModelElementInstance element = modelInstance.getModelElementById(sElement.getAttribute("id"));
+                  double xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  double yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, false );
+                  refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yOffset + yLane) + y * 200), (xLane+ x + 100), ((yLane + 220 + yOffset) + y * 200)));
+
+                  // check for boundary events
+                  XPathExpression boundaryRequest = xpath.compile("//*[@attachedToRef='" + sElement.getAttribute("id") + "']");
+                  NodeList boundaryEvents = (NodeList) boundaryRequest.evaluate(doc, XPathConstants.NODESET);
+
+                  for (int q = 0; q < boundaryEvents.getLength(); q++) {
+                    Element bdElement = (Element) boundaryEvents.item(q);
+                    element = modelInstance.getModelElementById(bdElement.getAttribute("id"));
+                    plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x + q * 40, (yLane + 240 + yOffset) + y * 200, 36, 36, false );
+                    refPoints.put(bdElement.getAttribute("id"), new SequenceReferencePoints(0, 0, ((xLane + x + 15) + q * 40), ((yLane + 275 + yOffset) + y * 200)));
+                    nextSourceRefs.add(bdElement.getAttribute("id"));
+                  }
+                  break;
+
+                case ("exclusiveGateway"):
+                case ("bpmn:exclusiveGateway"):
+                case ("inclusiveGateway"):
+                case ("bpmn:inclusiveGateway"):
+                case ("parallelGateway"):
+                case ("bpmn:parallelGateway"):
+                case ("eventBasedGateway"):
+                case ("bpmn:eventBasedGateway"):
+                  element = modelInstance.getModelElementById(sElement.getAttribute("id"));
+                  xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 195 + yOffset) + y * 200), 50, 50, false );
+                  refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((yLane + 220 + yOffset) + y * 200), (xLane + x + 50), ((yLane + 220 + yOffset) + y * 200)));
+                  break;
+
+                case ("intermediateThrowEvent"):
+                case ("bpmn:intermediateThrowEvent"):
+                case ("intermediateCatchEvent"):
+                case ("bpmn:intermediateCatchEvent"):
+                case ("endEvent"):
+                case ("bpmn:endEvent"):
+                  element = modelInstance.getModelElementById(sElement.getAttribute("id"));
+                  xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 200 + yOffset) + y * 200), 36, 36, false );
+                  refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((yLane + 220 + yOffset) + y * 200), (xLane + x + 36), ((yLane + 220 + yOffset) + y * 200)));
+                  break;
+
+                case ("textAnnotation"):
+                case ("bpmn:textAnnotation"):
+                  element = modelInstance.getModelElementById(sElement.getAttribute("id"));
+                  xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                  plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 200 + yOffset) + y * 80), 200, 200, false );
+                  refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((yLane + 220 + yOffset) + y * 80), (xLane + x + 36), ((yLane + 220 + yOffset) + y * 80)));
+                  break;
+
+                default:
+                  System.out.println("Type not found "+type);
+                }
+              }
+            }
+          }
+
+          // If there are additional shapes move the y axis by 200 pixels
+          yOffset += 200;
+        }
+
+        sourceRefs.clear();
+        sourceRefs.addAll(nextSourceRefs);
+        nextSourceRefs.clear();
+      }
+
+      // Find and draw sequence flows now that the shapes have been drawn and the reference points for the sequence flows
+      // have been established
+      searchRequest = xpath.compile("//*[contains(name(),'sequenceFlow')]");
+      NodeList sfNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
+
+      for (int i = 0; i < sfNodes.getLength(); i++) {
+        // TODO - add logic in drawFlow to create 'elbow' waypoints based on the relative xExit, xEntry and yExit, yEntry coordinates
+        Element sfElement = (Element) sfNodes.item(i);
+        plane = DrawFlow.drawFlow(plane, modelInstance,sfElement, refPoints);
+      }
+
+      searchRequest = xpath.compile("//*[contains(name(),'association')]");
+      NodeList associationNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
+
+      for (int i = 0; i < associationNodes.getLength(); i++) {
+        Element aElement = (Element) associationNodes.item(i);
+        plane = DrawFlow.drawFlow(plane, modelInstance,aElement, refPoints);
+      }
+
+
+  }
+
+*/
+
+  private void XmlToOutputStream(Document document, OutputStream outputStream) throws Exception {
+    DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+
+    final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+    final LSSerializer writer = impl.createLSSerializer();
+
+    writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+
+    LSOutput output = impl.createLSOutput();
+    output.setEncoding("UTF-8");
+
+    output.setByteStream(outputStream);
+    writer.write(document, output);
+
+  }
+
 
   public class MyBpmn extends Bpmn {
 

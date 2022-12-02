@@ -1,6 +1,6 @@
 package org.camunda.bpmn.generator;
 
-import org.camunda.bpmn.generator.process.DiagramBPMN;
+import org.camunda.bpmn.generator.process.BpmnDiagramToTransform;
 import org.camunda.bpmn.generator.report.Report;
 import org.camunda.bpmn.generator.transform.TransformFactory;
 import org.camunda.bpmn.generator.transform.TransformationBpmnInt;
@@ -28,7 +28,7 @@ public class Pilot {
       }
       report.info("------------ Manage["+oneProcessFile+"]");
       Report.Operation processOperation = report.startOperation("Process");
-      DiagramBPMN diagramBPMN = new DiagramBPMN(report);
+      BpmnDiagramToTransform diagramBPMN = new BpmnDiagramToTransform(report);
       try {
         diagramBPMN.read(new File(pathIn+"/"+oneProcessFile));
         TransformFactory transformFactory = TransformFactory.getInstance();

@@ -13,7 +13,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class DiagramBPMN {
+public class BpmnDiagramToTransform {
 
 
   private Document processXml;
@@ -21,7 +21,7 @@ public class DiagramBPMN {
   private String processName;
 
   Report report;
-  public DiagramBPMN(Report report) {
+  public BpmnDiagramToTransform(Report report) {
     this.report = report;
   }
   public void read(File file) throws Exception{
@@ -42,7 +42,7 @@ public class DiagramBPMN {
 
   public void write(File folderOutput) {
     try (FileOutputStream output =
-        new FileOutputStream(folderOutput+"\\"+processName)) {
+        new FileOutputStream(folderOutput+"\\out_"+processName)) {
       Report.Operation operation = report.startOperation("WriteProcess");
 
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
