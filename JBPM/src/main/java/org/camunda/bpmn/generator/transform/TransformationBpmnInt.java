@@ -1,6 +1,6 @@
 package org.camunda.bpmn.generator.transform;
 
-import org.camunda.bpmn.generator.process.BpmnDiagramToTransform;
+import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
 import org.camunda.bpmn.generator.report.Report;
 
 public interface TransformationBpmnInt {
@@ -13,7 +13,7 @@ public interface TransformationBpmnInt {
    * @param diagram progress to transform
    * @return the diagram transformed
    */
-  BpmnDiagramToTransform apply(BpmnDiagramToTransform diagram, Report report);
+  BpmnDiagramTransport apply(BpmnDiagramTransport diagram, Report report);
 
   String getReportOperations();
 

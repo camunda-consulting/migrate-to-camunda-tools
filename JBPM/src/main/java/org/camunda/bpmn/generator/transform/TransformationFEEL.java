@@ -8,7 +8,7 @@
 /* ******************************************************************** */
 package org.camunda.bpmn.generator.transform;
 
-import org.camunda.bpmn.generator.process.BpmnDiagramToTransform;
+import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
 import org.camunda.bpmn.generator.report.Report;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -25,7 +25,7 @@ public class TransformationFEEL implements TransformationBpmnInt {
   }
 
   @Override
-  public BpmnDiagramToTransform apply(BpmnDiagramToTransform diagramBPMN, Report report) {
+  public BpmnDiagramTransport apply(BpmnDiagramTransport diagramBPMN, Report report) {
 
 
     Pattern equalsExpression = Pattern.compile(

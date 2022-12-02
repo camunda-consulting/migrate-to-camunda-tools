@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DrawFlow {
-  private BpmnPlane plane;
-  private ModelInstance modelInstance;
+  private final BpmnPlane plane;
+  private final ModelInstance modelInstance;
 
   public DrawFlow(BpmnPlane plane, ModelInstance modelInstance) {
     this.plane = plane;
@@ -58,7 +58,7 @@ public class DrawFlow {
    */
   public List<Waypoint> calculateLine(TreeProcess.TreeNode.Coordinate source,
                                       TreeProcess.TreeNode.Coordinate destination,
-  TreeProcess.TreeNode sourceNode,
+                                      TreeProcess.TreeNode sourceNode,
                                       TreeProcess.TreeNode targetNode) {
     List<Waypoint> listWaypoints = new ArrayList<>();
 
@@ -66,16 +66,24 @@ public class DrawFlow {
 
     if (source.x() < destination.x()) {
       // ADVANCE
-      if (source.y() == destination.y() && source.x() < destination.x()) {
+      if (source.y() == destination.y() ) {
         // Same line, advance: simple, two points
-      } else if (source.y() < destination.y()) {
+      } else {
         // Advance, but not on the same line:
         // add a point at the corner. But where is the best corner? On the bottom.
-        listWaypoints.add(generateWayPoint(source.x(), destination.y()));
-      } else if (source.y() > destination.y()) {
-        // Advance, but not on the same line:
-        // add a point at the corner. But where is the best corner? On the bottom.
-        listWaypoints.add(generateWayPoint(destination.x(), source.y()));
+        if (sourceNode.isGateway() && targetNode.isGateway()) {
+          // suspect : two gateways no on the same line, there is something then on the same line after the source gateway
+          // go to the destination line
+          listWaypoints.add(generateWayPoint(source.x(), destination.y()));
+        } else if (targetNode.isGateway()) {
+          // go vertical to the gateway
+          listWaypoints.add(generateWayPoint(destination.x(), source.y()));
+        } else if (sourceNode.isTask()) {
+          listWaypoints.add(generateWayPoint(source.x() + 10, source.y()));
+          listWaypoints.add(generateWayPoint(source.x() + 10, destination.y()));
+        } else {
+          listWaypoints.add(generateWayPoint(source.x(), destination.y()));
+        }
       }
     } else if (source.x() == destination.x()) {
       // vertical: keep it on one line
@@ -90,8 +98,8 @@ public class DrawFlow {
         listWaypoints.add(generateWayPoint(source.x() + 10, source.y()));
         listWaypoints.add(generateWayPoint(source.x() + 10, minY - 60));
       }
-        listWaypoints.add(generateWayPoint(destination.x()-10, minY - 60));
-      listWaypoints.add(generateWayPoint(destination.x()-10, destination.y()));
+      listWaypoints.add(generateWayPoint(destination.x() - 10, minY - 60));
+      listWaypoints.add(generateWayPoint(destination.x() - 10, destination.y()));
     }
 
     // add the final point

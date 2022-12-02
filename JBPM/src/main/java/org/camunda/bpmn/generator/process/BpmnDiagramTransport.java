@@ -1,3 +1,11 @@
+/* ******************************************************************** */
+/*                                                                      */
+/*  BpmnDiagramTransport                                                */
+/*                                                                      */
+/*  Keep the current diagram and pass it to each transformer            */
+/*                                                                      */
+/* ******************************************************************** */
+
 package org.camunda.bpmn.generator.process;
 
 import org.camunda.bpmn.generator.report.Report;
@@ -13,7 +21,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class BpmnDiagramToTransform {
+public class BpmnDiagramTransport {
 
 
   private Document processXml;
@@ -21,7 +29,7 @@ public class BpmnDiagramToTransform {
   private String processName;
 
   Report report;
-  public BpmnDiagramToTransform(Report report) {
+  public BpmnDiagramTransport(Report report) {
     this.report = report;
   }
   public void read(File file) throws Exception{
