@@ -7,15 +7,13 @@ import java.util.List;
 
 public class TransformFactory {
 
-  private final static TransformFactory transformFactory = new TransformFactory();
+  private static final TransformFactory transformFactory = new TransformFactory();
 
   public static TransformFactory getInstance() {
     return transformFactory;
   }
 
   public List<TransformationBpmnInt> getTransformers() {
-    return Arrays.asList(
-        new TransformationFEEL(),
-        new TransformationDraw());
+    return Arrays.asList(new TransformationFEEL(), new TransformationDelAssignment(), new TransformationDraw());
   }
 }
