@@ -66,7 +66,7 @@ public class DrawFlow {
 
     if (source.x() < destination.x()) {
       // ADVANCE
-      if (source.y() == destination.y() ) {
+      if (source.y() == destination.y()) {
         // Same line, advance: simple, two points
       } else {
         // Advance, but not on the same line:

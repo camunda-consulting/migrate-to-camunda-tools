@@ -55,29 +55,26 @@ public class TransformationDraw implements TransformationBpmnInt {
   public static final int EVENT_OFFSETY = 22;
   public static final int ACTIVITY_HEIGHT = 80;
   public static final int ACTIVITY_WIDTH = 100;
+  // Keep it all context on the diagram
+  BpmnModelInstance modelInstance;
+  XPath xpath = XPathFactory.newInstance().newXPath();
+  Document docXML;
+  BpmnPlane plane;
+  int numberOfItems = 0;
+  int numberOfStartEvent = 0;
 
   @Override
   public String getName() {
     return "DRAW";
   }
 
-  // Keep it all context on the diagram
-  BpmnModelInstance modelInstance;
-  XPath xpath = XPathFactory.newInstance().newXPath();
-  Document docXML;
-  BpmnPlane plane;
-
-  int numberOfItems=0;
-  int numberOfStartEvent=0;
-
   @Override
   public String getReportOperations() {
-    return numberOfItems+" items, "+numberOfStartEvent+" startEvents";
+    return numberOfItems + " items, " + numberOfStartEvent + " startEvents";
   }
 
   @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport diagram, Report report) {
-
 
     try {
       docXML = diagram.getProcessXml();
@@ -164,16 +161,12 @@ public class TransformationDraw implements TransformationBpmnInt {
 
   }
 
-  public record Envelope(int height, int width) {}
-
-
-
   /**
    * Draw a process
    *
-   * @param process Process to draw
+   * @param process      Process to draw
    * @param baseXProcess baseX process
-   * @param report report any error
+   * @param report       report any error
    * @return the envelope, the size the process used on (height, width)
    * @throws Exception in case of error
    */
@@ -186,7 +179,7 @@ public class TransformationDraw implements TransformationBpmnInt {
     // First, place all elements, don't take care of lane
     ModelElementType startEventType = modelInstance.getModel().getType(StartEvent.class);
     Collection<ModelElementInstance> startEvents = modelInstance.getModelElementsByType(startEventType);
-    numberOfStartEvent+=startEvents.size();
+    numberOfStartEvent += startEvents.size();
 
     for (ModelElementInstance startEvent : startEvents) {
       TreeProcess.TreeNode startNode = treeProcess.addNode(treeProcess.getRoot(), startEvent);
@@ -207,7 +200,7 @@ public class TransformationDraw implements TransformationBpmnInt {
         for (int i = 0; i < nextItems.getLength(); i++) {
           Element nextItemXml = (Element) nextItems.item(i);
           // the NextItem is a sequenceFlow
-          if (nextItemXml.getNodeName().indexOf("sequenceFlow")!=-1) {
+          if (nextItemXml.getNodeName().indexOf("sequenceFlow") != -1) {
             ModelElementInstance nextItem = modelInstance.getModelElementById(nextItemXml.getAttribute("targetRef"));
             if (treeProcess.contains(nextItem)) {
 
@@ -237,13 +230,12 @@ public class TransformationDraw implements TransformationBpmnInt {
       // A -> B -> C -> D -> E -> F
       //      B -> G -> H -> E
       // and then F loop back to H. But if the tree is build by A,B,C,D,E,F, then H is not detected as a parent, but he is actually.
-      int count=3;
+      int count = 3;
       CalculatePositionTreeResult positionResult;
       do {
         positionResult = calculatePositionTree(treeProcess.getRoot(), 20, 50 + baseXProcess);
         count--;
-      } while (count>0 && positionResult.changeDetected);
-
+      } while (count > 0 && positionResult.changeDetected);
 
     }
     // Build a Shape for each item now
@@ -280,58 +272,58 @@ public class TransformationDraw implements TransformationBpmnInt {
 
   }
 
-  public record CalculatePositionTreeResult(int heigth, boolean changeDetected){}
   /**
    * process tree to give a position on each item
-   *
+   * <p>
    * Attention, the "changedetected" can be true and item are moved when we don't want to.
    * The algorithm detect the parent dependencies in the tree, and it should use a
-   *        graph instead. So, we detect some dependencies which may not be a real dependency and move again the graph.
-   *        Example of dependency not correctly detected:
-   *        A -> B -> C -> D -> E -> F
-   *             B -> G -> H -> E
-   *        and then F loop back to H. But if the tree is build by A,B,C,D,E,F, then H is not detected as a parent, but he is actually.
+   * graph instead. So, we detect some dependencies which may not be a real dependency and move again the graph.
+   * Example of dependency not correctly detected:
+   * A -> B -> C -> D -> E -> F
+   * B -> G -> H -> E
+   * and then F loop back to H. But if the tree is build by A,B,C,D,E,F, then H is not detected as a parent, but he is actually.
    *
    * @param treenode tree node to start the calculation (this is a recursive call)
-   * @param baseX base X to place the item. Due to dependency, the item may be place AFTER this X
-   * @param baseY base Y to place the item. Due to dependency, the item may be place AFTER this X
+   * @param baseX    base X to place the item. Due to dependency, the item may be place AFTER this X
+   * @param baseY    base Y to place the item. Due to dependency, the item may be place AFTER this X
    * @return a record to indicate the height and if something is recalculated
    */
   private CalculatePositionTreeResult calculatePositionTree(TreeProcess.TreeNode treenode, int baseX, int baseY) {
-    boolean positionChanged=false;
+    boolean positionChanged = false;
     // parent ask me top be place at baseX, baseY : but maybe one dependency is AFTER this position?
     // Then I need to adjust this calculation to be AFTER that.
     TreeProcess.TreeNode.Coordinate currentPosition = treenode.getPosition();
-    int itemBaseX= baseX;
-    int itemBaseY=baseY;
+    int itemBaseX = baseX;
+    int itemBaseY = baseY;
     // Attention, for an event, just move down the position by the oversetY
     if (treenode.isEvent() || treenode.isGateway()) {
-      itemBaseY = baseY+EVENT_OFFSETY;
+      itemBaseY = baseY + EVENT_OFFSETY;
     }
 
-    if (currentPosition!=null) {
-      itemBaseX= Math.max(itemBaseX, currentPosition.x());
-      itemBaseY= Math.max(itemBaseY, currentPosition.y());
+    if (currentPosition != null) {
+      itemBaseX = Math.max(itemBaseX, currentPosition.x());
+      itemBaseY = Math.max(itemBaseY, currentPosition.y());
     }
     for (TreeProcess.TreeNode parentByDependencie : treenode.getDependencies()) {
-      TreeProcess.TreeNode.Coordinate parentPosition =parentByDependencie.getPosition();
-      if (parentPosition!=null && parentPosition.x() > itemBaseX)
-        itemBaseX = parentPosition.x()+ parentByDependencie.getWidth()+50;
+      TreeProcess.TreeNode.Coordinate parentPosition = parentByDependencie.getPosition();
+      if (parentPosition != null && parentPosition.x() > itemBaseX)
+        itemBaseX = parentPosition.x() + parentByDependencie.getWidth() + 50;
       // we don't want to change the Y, only the X
     }
 
     // is the position changed?
-    if (currentPosition==null || currentPosition.x()!= itemBaseX || currentPosition.y()!=itemBaseY)
-      positionChanged=true;
+    if (currentPosition == null || currentPosition.x() != itemBaseX || currentPosition.y() != itemBaseY)
+      positionChanged = true;
     treenode.setPosition(itemBaseX, itemBaseY);
 
     int childHeight = 0;
     for (TreeProcess.TreeNode childNode : treenode.getChildren()) {
 
-          CalculatePositionTreeResult childPositionResult = calculatePositionTree(childNode, baseX + treenode.getWidth() + 50, baseY + childHeight);
+      CalculatePositionTreeResult childPositionResult = calculatePositionTree(childNode,
+          baseX + treenode.getWidth() + 50, baseY + childHeight);
       childHeight += childPositionResult.heigth();
       if (childPositionResult.changeDetected)
-        positionChanged=true;
+        positionChanged = true;
 
     }
     return new CalculatePositionTreeResult(Math.max(treenode.getHeight() + 30, childHeight), positionChanged);
@@ -351,6 +343,12 @@ public class TransformationDraw implements TransformationBpmnInt {
     StreamResult result = new StreamResult(outputStream);
 
     transformer.transform(source, result);
+  }
+
+  public record Envelope(int height, int width) {
+  }
+
+  public record CalculatePositionTreeResult(int heigth, boolean changeDetected) {
   }
 
   public static class MyBpmn extends Bpmn {

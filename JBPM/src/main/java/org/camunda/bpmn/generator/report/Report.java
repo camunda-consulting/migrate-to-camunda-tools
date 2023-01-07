@@ -11,12 +11,13 @@ import java.util.Map;
 
 public class Report {
 
+  private final Map<String, Long> cumulOperationTime = new HashMap<>();
+  private final Map<String, Long> cumulOperationOccurence = new HashMap<>();
   Logger logger = LoggerFactory.getLogger(Report.class.getName());
-
-  Level level= Level.INFO;
+  Level level = Level.INFO;
 
   public void setLevel(Level level) {
-    this.level= level;
+    this.level = level;
   }
 
   public void info(String message) {
@@ -39,13 +40,6 @@ public class Report {
     if (this.level == Level.DEBUG)
       System.out.println("DEBUG " + message);
   }
-
-
-
-  public record Operation(String name, long timeBegin) { }
-
-  private final Map<String, Long> cumulOperationTime = new HashMap<>();
-  private final Map<String, Long> cumulOperationOccurence = new HashMap<>();
 
   public Operation startOperation(String name) {
     return new Operation(name, System.currentTimeMillis());
@@ -73,14 +67,16 @@ public class Report {
     return duration;
   }
 
-
   public void logAllOperations() {
     List<String> synthesis = new ArrayList<>();
-    for (Map.Entry<String,Long> operation : cumulOperationTime.entrySet()) {
+    for (Map.Entry<String, Long> operation : cumulOperationTime.entrySet()) {
       synthesis.add(
           operation.getKey() + ":" + operation.getValue() + " ms (" + cumulOperationOccurence.get(operation.getKey())
               + ")");
     }
     info(String.join(", ", synthesis));
+  }
+
+  public record Operation(String name, long timeBegin) {
   }
 }

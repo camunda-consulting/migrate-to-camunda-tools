@@ -27,7 +27,6 @@ public class TransformationFEEL implements TransformationBpmnInt {
   @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport diagramBPMN, Report report) {
 
-
     Pattern equalsExpression = Pattern.compile(
         "return [a-zA-Z]+\\.equals\\([a-zA-Z_0-9\"]+\\)");//. represents single character
 
@@ -46,7 +45,7 @@ public class TransformationFEEL implements TransformationBpmnInt {
             // Yes, get one here
             String textContent = condition.getTextContent();
             if (textContent.trim().endsWith(";"))
-              textContent=textContent.substring(0,textContent.length()-1);
+              textContent = textContent.substring(0, textContent.length() - 1);
             textContent = textContent.trim();
 
             // match return <Variable>.equals(<value>) ?
@@ -74,6 +73,6 @@ public class TransformationFEEL implements TransformationBpmnInt {
 
   @Override
   public String getReportOperations() {
-    return "FEEL Expression replaced "+feelExpressionReplaced;
+    return "FEEL Expression replaced " + feelExpressionReplaced;
   }
 }

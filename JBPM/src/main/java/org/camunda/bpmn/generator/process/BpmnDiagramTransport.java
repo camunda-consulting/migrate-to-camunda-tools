@@ -23,16 +23,15 @@ import java.io.FileOutputStream;
 
 public class BpmnDiagramTransport {
 
-
+  Report report;
   private Document processXml;
-
   private String processName;
 
-  Report report;
   public BpmnDiagramTransport(Report report) {
     this.report = report;
   }
-  public void read(File file) throws Exception{
+
+  public void read(File file) throws Exception {
     // Read document in preparation for Xpath searches
     processName = file.getName();
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -42,15 +41,14 @@ public class BpmnDiagramTransport {
       processXml = dBuilder.parse(file);
       report.endOperation(operation);
 
-    } catch(Exception e) {
-      report.error("Error parsing file ("+file.getName()+"]");
+    } catch (Exception e) {
+      report.error("Error parsing file (" + file.getName() + "]");
       throw e;
     }
   }
 
   public void write(File folderOutput) {
-    try (FileOutputStream output =
-        new FileOutputStream(folderOutput+"\\out_"+processName)) {
+    try (FileOutputStream output = new FileOutputStream(folderOutput + "\\out_" + processName)) {
       Report.Operation operation = report.startOperation("WriteProcess");
 
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -63,33 +61,34 @@ public class BpmnDiagramTransport {
       report.endOperation(operation);
 
     } catch (Exception e) {
-      report.error("Can't write file ["+processName+"] to path["+folderOutput.getAbsolutePath(), e);
+      report.error("Can't write file [" + processName + "] to path[" + folderOutput.getAbsolutePath(), e);
     }
   }
-
 
   public Document getProcessXml() {
     return processXml;
   }
 
-  public void setProcessXml( Document processXml) {
+  public void setProcessXml(Document processXml) {
     this.processXml = processXml;
   }
+
   /**
    * Return all SequenceFlow
+   *
    * @return NodesList of sequenceFlow
    */
   public NodeList getSequenceFlow() {
     // search all Sequence flow
     NodeList nodes = processXml.getElementsByTagName("sequenceFlow");
-    report.debug("DiagramBPMN.getSequenceFlow(): Found "+nodes.getLength());
-  return nodes;
+    report.debug("DiagramBPMN.getSequenceFlow(): Found " + nodes.getLength());
+    return nodes;
   }
 
   public NodeList getElementsByTagName(String tagName) {
     // search all Sequence flow
     NodeList nodes = processXml.getElementsByTagName(tagName);
-    report.debug("DiagramBPMN.getElementByTagName("+tagName+"): Found "+nodes.getLength());
+    report.debug("DiagramBPMN.getElementByTagName(" + tagName + "): Found " + nodes.getLength());
     return nodes;
   }
 }
