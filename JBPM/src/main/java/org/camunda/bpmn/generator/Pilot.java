@@ -4,6 +4,8 @@ import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
 import org.camunda.bpmn.generator.report.Report;
 import org.camunda.bpmn.generator.transform.TransformFactory;
 import org.camunda.bpmn.generator.transform.TransformationBpmnInt;
+import org.camunda.bpmn.generator.verify.VerificationFactory;
+import org.camunda.bpmn.generator.verify.VerificationInt;
 
 import java.io.File;
 
@@ -27,26 +29,53 @@ public class Pilot {
         continue;
       }
       report.info("------------ Manage[" + oneProcessFile + "]");
-      Report.Operation processOperation = report.startOperation("Process");
       BpmnDiagramTransport diagramBPMN = new BpmnDiagramTransport(report);
       try {
         diagramBPMN.read(new File(pathIn + "/" + oneProcessFile));
-        TransformFactory transformFactory = TransformFactory.getInstance();
-        for (TransformationBpmnInt transformer : transformFactory.getTransformers()) {
-          Report.Operation operation = report.startOperation("Transformation " + transformer.getName());
+        Report.Operation processOperation = report.startOperation("transformation");
+        executeTransformations(diagramBPMN);
+        report.endOperation("  -- End transformation", processOperation);
 
-          diagramBPMN = transformer.apply(diagramBPMN, report);
-          report.endOperation("     " + transformer.getName() + ": " + transformer.getReportOperations(), operation);
-        }
+        Report.Operation processVerification = report.startOperation("verification");
+        executeVerifications(diagramBPMN);
+        report.endOperation("  -- End verification ", processVerification);
+        report.endOperation("------------ End process [" + oneProcessFile + "]", processVerification);
         diagramBPMN.write(pathOut);
+
       } catch (Exception e) {
         // already logged
       }
-      report.endOperation("------------ End process [" + oneProcessFile + "] ", processOperation);
 
     }
     report.logAllOperations();
     report.info("End, process produced in  [" + pathOut.getAbsolutePath() + "]");
+  }
+
+  private void executeTransformations(BpmnDiagramTransport diagramBPMN) {
+    try {
+      TransformFactory transformFactory = TransformFactory.getInstance();
+      for (TransformationBpmnInt transformer : transformFactory.getTransformers()) {
+        Report.Operation operation = report.startOperation("Transformation " + transformer.getName());
+
+        diagramBPMN = transformer.apply(diagramBPMN, report);
+        report.endOperation("     " + transformer.getName() + ": " + transformer.getReportOperations(), operation);
+      }
+    } catch (Exception e) {
+      // already logged
+    }
+  }
+
+  private void executeVerifications(BpmnDiagramTransport diagramBPMN) {
+    // now run all verifications
+    VerificationFactory verificationFactory = VerificationFactory.getInstance();
+    for (VerificationInt verification : verificationFactory.getTransformers()) {
+      Report.Operation operation = report.startOperation("Transformation " + verification.getName());
+
+      boolean isOk = verification.isOk(diagramBPMN, report);
+      report.endOperation("     " + verification.getName() + ": " + isOk + " - " + verification.getReportVerification(),
+          operation);
+    }
+
   }
 
 }

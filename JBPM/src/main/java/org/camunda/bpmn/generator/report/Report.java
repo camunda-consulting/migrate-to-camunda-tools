@@ -47,13 +47,13 @@ public class Report {
 
   public void endOperation(String message, Operation operation) {
     long duration = endOperationInternal(operation);
-    info(message + " in " + duration);
+    info(message + " in " + duration+" ms");
   }
 
   public void endOperation(Operation operation) {
     long duration = endOperationInternal(operation);
     if (duration > 100)
-      info("operation [" + operation.name + "] done in " + duration);
+      info("operation [" + operation.name + "] done in " + duration+" ms");
 
   }
 
