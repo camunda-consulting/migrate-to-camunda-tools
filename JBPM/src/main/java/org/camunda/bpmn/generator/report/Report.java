@@ -28,11 +28,11 @@ public class Report {
 
   public void error(String message) {
     logger.error(message);
-    System.out.println("ERROR " + message);
+    System.out.println("ERROR >>>>>>>>>>>>>>>>>>>>>>> " + message);
   }
 
   public void error(String message, Exception e) {
-    error(message + " " + e);
+    error(message + " " + e.getMessage()+" "+e.getCause());
   }
 
   public void debug(String message) {

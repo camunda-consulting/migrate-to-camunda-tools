@@ -23,23 +23,35 @@ public class Pilot {
       return;
     report.info("Found  " + listProcessFile.length + " files in [" + pathIn.getAbsolutePath() + "]");
 
+    String prefix="----------------------------------------------- ";
     for (String oneProcessFile : listProcessFile) {
       if (!oneProcessFile.endsWith(".bpmn")) {
         report.error("Can't transform file[" + oneProcessFile + "] : must be end by .bpmn");
         continue;
       }
-      report.info("------------ Manage[" + oneProcessFile + "]");
+      report.info(prefix+"Manage[" + oneProcessFile + "]");
       BpmnDiagramTransport diagramBPMN = new BpmnDiagramTransport(report);
       try {
         diagramBPMN.read(new File(pathIn + "/" + oneProcessFile));
+
+        // verification before any transformation:
+        Report.Operation processPreVerification = report.startOperation("preverification");
+
+        if (! executeVerifications(diagramBPMN)) {
+          report.error("["+oneProcessFile+"]Verification before transformation failed, to not process");
+          continue;
+        }
+        report.endOperation("  -- End pre verification ", processPreVerification);
+
+
         Report.Operation processOperation = report.startOperation("transformation");
-        executeTransformations(diagramBPMN);
+        executeTransformations(diagramBPMN, pathOut);
         report.endOperation("  -- End transformation", processOperation);
 
-        Report.Operation processVerification = report.startOperation("verification");
+        Report.Operation processPostVerification = report.startOperation("postverification");
         executeVerifications(diagramBPMN);
-        report.endOperation("  -- End verification ", processVerification);
-        report.endOperation("------------ End process [" + oneProcessFile + "]", processVerification);
+        report.endOperation("  -- End post verification ", processPostVerification);
+        report.endOperation(prefix+"End[" + oneProcessFile + "]", processPostVerification);
         diagramBPMN.write(pathOut);
 
       } catch (Exception e) {
@@ -51,31 +63,43 @@ public class Pilot {
     report.info("End, process produced in  [" + pathOut.getAbsolutePath() + "]");
   }
 
-  private void executeTransformations(BpmnDiagramTransport diagramBPMN) {
+  private void executeTransformations(BpmnDiagramTransport diagramBPMN,File pathOut) {
     try {
       TransformFactory transformFactory = TransformFactory.getInstance();
+      int transformationNumber=0;
       for (TransformationBpmnInt transformer : transformFactory.getTransformers()) {
+        transformationNumber++;
         Report.Operation operation = report.startOperation("Transformation " + transformer.getName());
+        // diagramBPMN.write(pathOut, transformationNumber+"_"+transformer.getName()+"_beg");
 
         diagramBPMN = transformer.apply(diagramBPMN, report);
-        report.endOperation("     " + transformer.getName() + ": " + transformer.getReportOperations(), operation);
+        // diagramBPMN.write(pathOut, transformationNumber+"_"+transformer.getName()+"_end");
+
+        String name = (transformer.getName()+"                         ").substring(0,20);
+        report.endOperation("     [" + name + "] : " + transformer.getReportOperations(), operation);
       }
     } catch (Exception e) {
       // already logged
     }
   }
 
-  private void executeVerifications(BpmnDiagramTransport diagramBPMN) {
+  private boolean executeVerifications(BpmnDiagramTransport diagramBPMN) {
     // now run all verifications
     VerificationFactory verificationFactory = VerificationFactory.getInstance();
+    boolean isOk=true;
     for (VerificationInt verification : verificationFactory.getTransformers()) {
       Report.Operation operation = report.startOperation("Transformation " + verification.getName());
 
-      boolean isOk = verification.isOk(diagramBPMN, report);
-      report.endOperation("     " + verification.getName() + ": " + isOk + " - " + verification.getReportVerification(),
-          operation);
-    }
+      boolean localIsOk = verification.isOk(diagramBPMN, report);
 
+      String name = (verification.getName()+"                         ").substring(0,20);
+      report.endOperation("     [" + name + "] : " + localIsOk + " - " + verification.getReportVerification(),
+          operation);
+      if (!localIsOk)
+        isOk=false;
+
+    }
+    return isOk;
   }
 
 }

@@ -65,7 +65,7 @@ public class TransformationDraw implements TransformationBpmnInt {
 
   @Override
   public String getName() {
-    return "DRAW";
+    return "Draw";
   }
 
   @Override
@@ -146,11 +146,8 @@ public class TransformationDraw implements TransformationBpmnInt {
       definitions.addChildElement(bpmnDiagram);
 
       Bpmn.validateModel(modelInstance);
-      // bpmn.doWriteModelToOutputStream
-      File outputFile = new File("d:/temp/f.bpmn");
-      Bpmn.writeModelToFile(outputFile, modelInstance);
+
       MyBpmn myBpm = new MyBpmn();
-      //
 
       diagram.setProcessXml(myBpm.getDocument(modelInstance));
 
@@ -186,7 +183,7 @@ public class TransformationDraw implements TransformationBpmnInt {
       startNode.setSize(EVENT_HEIGHT, EVENT_WIDTH);
 
       // Explore from the starter and populate the tree
-      LinkedList<ModelElementInstance> queue = new LinkedList();
+      LinkedList<ModelElementInstance> queue = new LinkedList<>();
       queue.add(startEvent);
       while (!queue.isEmpty()) {
         ModelElementInstance item = queue.poll();
@@ -200,7 +197,7 @@ public class TransformationDraw implements TransformationBpmnInt {
         for (int i = 0; i < nextItems.getLength(); i++) {
           Element nextItemXml = (Element) nextItems.item(i);
           // the NextItem is a sequenceFlow
-          if (nextItemXml.getNodeName().indexOf("sequenceFlow") != -1) {
+          if (nextItemXml.getNodeName().contains("sequenceFlow")) {
             ModelElementInstance nextItem = modelInstance.getModelElementById(nextItemXml.getAttribute("targetRef"));
             if (treeProcess.contains(nextItem)) {
 

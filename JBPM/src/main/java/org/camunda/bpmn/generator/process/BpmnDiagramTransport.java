@@ -46,9 +46,13 @@ public class BpmnDiagramTransport {
       throw e;
     }
   }
-
   public void write(File folderOutput) {
-    try (FileOutputStream output = new FileOutputStream(folderOutput + "\\out_" + processName)) {
+    write(folderOutput, null);
+  }
+
+  public void write(File folderOutput,String prefixName) {
+    try (FileOutputStream output = new FileOutputStream(folderOutput + "\\out_" + processName
+        +(prefixName!=null ? "_"+prefixName:""))) {
       Report.Operation operation = report.startOperation("WriteProcess");
 
       TransformerFactory transformerFactory = TransformerFactory.newInstance();

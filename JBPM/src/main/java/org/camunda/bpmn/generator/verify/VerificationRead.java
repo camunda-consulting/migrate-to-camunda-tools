@@ -38,7 +38,7 @@ public class VerificationRead implements  VerificationInt{
       return true;
     }
     catch(Exception e) {
-      errors=e.getMessage();
+      errors=e.getMessage()+" "+e.getCause();
       return false;
     }
   }

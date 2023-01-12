@@ -21,7 +21,7 @@ public class TransformationFEEL implements TransformationBpmnInt {
 
   @Override
   public String getName() {
-    return "FEEL";
+    return "Feel";
   }
 
   @Override
@@ -73,6 +73,6 @@ public class TransformationFEEL implements TransformationBpmnInt {
 
   @Override
   public String getReportOperations() {
-    return "FEEL Expression replaced " + feelExpressionReplaced;
+    return "Feel Expression replaced " + feelExpressionReplaced;
   }
 }
