@@ -11,7 +11,7 @@ import java.util.List;
 public class BpmnTool {
 
   private final BpmnDiagramTransport bpmnDiagramTransport;
-  Report final report;
+  private final Report report;
 
   protected BpmnTool(BpmnDiagramTransport bpmnDiagramTransport, Report report) {
     this.bpmnDiagramTransport = bpmnDiagramTransport;
