@@ -11,13 +11,16 @@ package org.camunda.bpmn.generator.transform;
 import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
 import org.camunda.bpmn.generator.report.Report;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class TransformationFEEL implements TransformationBpmnInt {
 
   private int feelExpressionReplaced = 0;
+  private int feelExpressionIgnored=0;
 
   @Override
   public String getName() {
@@ -25,23 +28,24 @@ public class TransformationFEEL implements TransformationBpmnInt {
   }
 
   @Override
-  public BpmnDiagramTransport apply(BpmnDiagramTransport diagramBPMN, Report report) {
+  public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
 
     Pattern equalsExpression = Pattern.compile(
-        "return [a-zA-Z]+\\.equals\\([a-zA-Z_0-9\"]+\\)");//. represents single character
+        "return [ ]*[a-zA-Z\"]+\\.equals\\([ ]*[a-zA-Z_0-9\"]+[ ]*\\)");//. represents single character
 
     try {
-      NodeList listSequences = diagramBPMN.getSequenceFlow();
-      for (int i = 0; i < listSequences.getLength(); i++) {
-        Element sequenceFlow = (Element) listSequences.item(i);
+      List<Node> listSequences = bpmnDiagram.getBpmnTool().getElementsByBpmnName("sequenceFlow");
+      for (Node nodeSequence : listSequences) {
+        Element sequenceFlow = (Element) nodeSequence;
         // the sequence contains a condition?
         NodeList listChild = sequenceFlow.getChildNodes();
-        for (int j = 0; j < listChild.getLength(); j++) {
-          if (!(listChild.item(j) instanceof Element)) {
+        for (Node nodeCondition :  bpmnDiagram.getBpmnTool().getList(listChild)) {
+          if (!(nodeCondition instanceof Element)) {
             continue;
           }
-          Element condition = (Element) listChild.item(j);
-          if (condition.getNodeName().equals("conditionExpression")) {
+          Element condition = (Element) nodeCondition;
+          if (condition.getNodeName().equals("conditionExpression")
+          || condition.getNodeName().endsWith(":conditionExpression")) {
             // Yes, get one here
             String textContent = condition.getTextContent();
             if (textContent.trim().endsWith(";"))
@@ -58,21 +62,26 @@ public class TransformationFEEL implements TransformationBpmnInt {
               String value = textContent.substring(indexOfEquals + ".equals(".length());
               // remove the last )
               value = value.substring(0, value.length() - 1);
-              condition.setTextContent(variableName + " == " + value);
-              feelExpressionReplaced++;
-            }
+              condition.setTextContent("${"+variableName + " == " + value+"}");
+              // remove the attribut language
+              condition.removeAttribute("language");
 
+              feelExpressionReplaced++;
+            } else {
+              feelExpressionIgnored++;
+              report.info("Expression {" + textContent + "] does not match any transformation expression - ignored");
+            }
           } // end contiditionExpression
         } // end sequence Child
       } // end sequence
     } catch (Exception e) {
       report.error("During FEEL operation ", e);
     }
-    return diagramBPMN;
+    return bpmnDiagram;
   }
 
   @Override
   public String getReportOperations() {
-    return "Feel Expression replaced " + feelExpressionReplaced;
+    return "Feel Expression replaced " + feelExpressionReplaced+" ignored "+feelExpressionIgnored;
   }
 }

@@ -3,7 +3,7 @@ package org.camunda.bpmn.generator.transform;
 import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
 import org.camunda.bpmn.generator.report.Report;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,17 +27,14 @@ public class TransformBpmnDefinition implements TransformationBpmnInt {
   }
 
   @Override
-  public BpmnDiagramTransport apply(BpmnDiagramTransport diagramBPMN, Report report) {
-    NodeList listUserTaskInput = diagramBPMN.getElementsByTagName("definitions");
-    if (listUserTaskInput.getLength()==0)
-      listUserTaskInput = diagramBPMN.getElementsByTagName("bpmn:definitions");
-
-    if (listUserTaskInput.getLength() != 1) {
+  public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
+    List<Node> listUserTaskInput = bpmnDiagram.getBpmnTool().getElementsByBpmnName("definitions");
+    if (listUserTaskInput.isEmpty()) {
       report.error("No bpmn:definition found");
-      return diagramBPMN;
+      return bpmnDiagram;
     }
 
-    Element bpmnDefinition = (Element) listUserTaskInput.item(0);
+    Element bpmnDefinition = (Element) listUserTaskInput.get(0);
     for (Map.Entry<String, String> oneDeclaration : mandatoryDeclaration.entrySet()) {
       String attributValue =bpmnDefinition.getAttribute(oneDeclaration.getKey());
       if ( attributValue == null || attributValue.trim().isEmpty()) {
@@ -45,7 +42,7 @@ public class TransformBpmnDefinition implements TransformationBpmnInt {
         addMissingDeclarations.add(oneDeclaration.getKey());
       }
     }
-    return diagramBPMN;
+    return bpmnDiagram;
   }
 
   @Override

@@ -1,13 +1,12 @@
 package org.camunda.bpmn.generator.transform;
 
 import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
+import org.camunda.bpmn.generator.process.BpmnTool;
 import org.camunda.bpmn.generator.report.Report;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,35 +77,40 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
   }
 
   @Override
-  public BpmnDiagramTransport apply(BpmnDiagramTransport diagramBPMN, Report report) {
+  public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
     try {
-      NodeList listUserTaskInput = diagramBPMN.getElementsByTagName("userTask");
-      for (Node userTask : getList(listUserTaskInput)) {
+      List<Node> listUserTaskInput = bpmnDiagram.getBpmnTool().getElementsByTagName("userTask");
+      for (Node userTask : listUserTaskInput) {
 
-        Map<String, DataAssociation> inputAssociation = collectDataAssociation(userTask, "dataInputAssociation");
-        Map<String, DataAssociation> outputAssociation = collectDataAssociation(userTask, "dataOutputAssociation");
+        Map<String, DataAssociation> inputAssociation = collectDataAssociation(userTask, "dataInputAssociation",
+            report);
+        Map<String, DataAssociation> outputAssociation = collectDataAssociation(userTask, "dataOutputAssociation",
+            report);
 
-        for (Node childUserTask : getList(userTask.getChildNodes())) {
-          if ("ioSpecification".equals(childUserTask.getNodeName())) {
+        for (Node childUserTask : bpmnDiagram.getBpmnTool().getList(userTask.getChildNodes())) {
+          if (BpmnTool.equalsNodeName(childUserTask, "ioSpecification")) {
             ioSpecification++;
 
-            Element extensionElement = diagramBPMN.getProcessXml().createElement(BPMN_ELEMENT_EXTENSION_ELEMENTS);
+            Element extensionElement = bpmnDiagram.getProcessXml().createElement(BPMN_ELEMENT_EXTENSION_ELEMENTS);
             userTask.appendChild(extensionElement);
-            Element inputOutputElement = diagramBPMN.getProcessXml().createElement(BPMN_ELEMENT_INPUT_OUTPUT);
+            Element inputOutputElement = bpmnDiagram.getProcessXml().createElement(BPMN_ELEMENT_INPUT_OUTPUT);
             extensionElement.appendChild(inputOutputElement);
-            completeExtension(childUserTask, inputOutputElement, inputAssociation, outputAssociation,
-                diagramBPMN.getProcessXml());
+            int numberOfChildren = completeExtension(childUserTask, inputOutputElement, inputAssociation,
+                outputAssociation, bpmnDiagram.getProcessXml());
+
+            if (numberOfChildren == 0)
+              userTask.removeChild(extensionElement);
           }
         }
         // second pass: delete all nodes
-        for (Node childUserTask : getList(userTask.getChildNodes())) {
-          if ("ioSpecification".equals(childUserTask.getNodeName())) {
+        for (Node childUserTask : bpmnDiagram.getBpmnTool().getList(userTask.getChildNodes())) {
+          if (BpmnTool.equalsNodeName(childUserTask, "ioSpecification")) {
             userTask.removeChild(childUserTask);
           }
-          if ("dataInputAssociation".equals(childUserTask.getNodeName())) {
+          if (BpmnTool.equalsNodeName(childUserTask, "dataInputAssociation")) {
             userTask.removeChild(childUserTask);
           }
-          if ("dataOutputAssociation".equals(childUserTask.getNodeName())) {
+          if (BpmnTool.equalsNodeName(childUserTask, "dataOutputAssociation")) {
             userTask.removeChild(childUserTask);
           }
         }
@@ -115,7 +119,7 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
       report.error("During UserTaskInput operation ", e);
 
     }
-    return diagramBPMN;
+    return bpmnDiagram;
   }
 
   /**
@@ -136,24 +140,30 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
    * @param name         node of child to filter
    * @return all data association
    */
-  private Map<String, DataAssociation> collectDataAssociation(Node userTaskNode, String name) {
+  private Map<String, DataAssociation> collectDataAssociation(Node userTaskNode, String name, Report report) {
     Map<String, DataAssociation> mapDataAssociation = new HashMap<>();
-    for (Node userTaskChildNode : getList(userTaskNode.getChildNodes())) {
-      if (name.equals(userTaskChildNode.getNodeName())) {
+    for (Node userTaskChildNode : BpmnTool.getList(userTaskNode.getChildNodes())) {
+      if (BpmnTool.equalsNodeName(userTaskChildNode, name)) {
         DataAssociation dataAssociation = new DataAssociation();
-        for (Node itemAssociation : getList(userTaskChildNode.getChildNodes())) {
-          if ("sourceRef".equals(itemAssociation.getNodeName())) {
+        for (Node itemAssociation : BpmnTool.getList(userTaskChildNode.getChildNodes())) {
+          if (BpmnTool.equalsNodeName(itemAssociation, "sourceRef")) {
             dataAssociation.sourceRef = itemAssociation.getTextContent();
           }
-          if ("targetRef".equals(itemAssociation.getNodeName())) {
+          if (BpmnTool.equalsNodeName(itemAssociation, "targetRef")) {
             dataAssociation.targetRef = itemAssociation.getTextContent();
           }
-          if ("assignment".equals(itemAssociation.getNodeName())) {
-            dataAssociation.fromExpression = getList(itemAssociation.getChildNodes()).stream()
-                .filter(t -> t.getNodeName().equalsIgnoreCase("from"))
-                .map(Node::getTextContent)
-                .findFirst()
-                .get();
+          if (BpmnTool.equalsNodeName(itemAssociation, "assignment")) {
+            try {
+              dataAssociation.fromExpression = BpmnTool.getList(itemAssociation.getChildNodes())
+                  .stream()
+                  .filter(t -> BpmnTool.equalsNodeName(t, "from"))
+                  .map(Node::getTextContent)
+                  .findFirst()
+                  .get();
+            } catch (Exception e) {
+              report.error("No child [from] in this element : id=[" + BpmnTool.getAttributName(userTaskNode, "id")
+                  + "] dataAssociationI=[" + BpmnTool.getAttributName(itemAssociation, "id"));
+            }
           }
         }
 
@@ -167,28 +177,30 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
 
   /**
    * Complete the extension
-   * @param ioSpecificationNode the ioSpecification node
+   *
+   * @param ioSpecificationNode   the ioSpecification node
    * @param extensionElementsNode the extensionElementsNode : new node is created here
-   * @param inputAssociation all inputAssociation, to give a default value is exists
-   * @param outputAssociation all outputAssociation , to give a default value is exists
-   * @param document XML Document to create element from.
+   * @param inputAssociation      all inputAssociation, to give a default value is exists
+   * @param outputAssociation     all outputAssociation , to give a default value is exists
+   * @param document              XML Document to create element from.
    */
-  private void completeExtension(Node ioSpecificationNode,
-                                 Node extensionElementsNode,
-                                 Map<String, DataAssociation> inputAssociation,
-                                 Map<String, DataAssociation> outputAssociation,
-                                 Document document) {
-    for (Node childSpecification : getList(ioSpecificationNode.getChildNodes())) {
+  private int completeExtension(Node ioSpecificationNode,
+                                Node extensionElementsNode,
+                                Map<String, DataAssociation> inputAssociation,
+                                Map<String, DataAssociation> outputAssociation,
+                                Document document) {
+    int numberOfChildren = 0;
+    for (Node childSpecification : BpmnTool.getList(ioSpecificationNode.getChildNodes())) {
       Element parameter = null;
-      DataAssociation dataAssociation=null;
-      if ("dataInput".equals(childSpecification.getNodeName())) {
+      DataAssociation dataAssociation = null;
+      if (BpmnTool.equalsNodeName(childSpecification, "dataInput")) {
         //     <dataInput id="_jbpm-unique-1_wfActionInput" name="wfAction" />
         // to
         //     <camunda:inputParameter name="wfAction">${wfAction}</camunda:inputParameter>
         parameter = document.createElement(BPMN_ELEMENT_INPUT_PARAMETER);
         dataAssociation = inputAssociation.get(((Element) childSpecification).getAttribute("id"));
       }
-      if ("dataOutput".equals(childSpecification.getNodeName())) {
+      if (BpmnTool.equalsNodeName(childSpecification, "dataOutput")) {
         parameter = document.createElement(BPMN_ELEMENT_OUTPUT_PARAMETER);
         dataAssociation = outputAssociation.get(((Element) childSpecification).getAttribute("id"));
       }
@@ -198,19 +210,20 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
         if (name == null || name.isEmpty())
           continue;
         extensionElementsNode.appendChild(parameter);
+        numberOfChildren++;
         parameter.setAttribute("name", name);
         if ("TaskName".equals(name) || "NodeName".equals(name)) {
           // ignore it
-        } else if (dataAssociation==null) {
+        } else if (dataAssociation == null) {
           // ignore it
-        }
-        else if(dataAssociation.sourceRef != null) {
+        } else if (dataAssociation.sourceRef != null) {
           parameter.setTextContent("${" + dataAssociation.sourceRef + "}");
         } else if (dataAssociation.fromExpression != null) {
           parameter.setTextContent(dataAssociation.fromExpression);
         }
       }
     }
+    return numberOfChildren;
   }
 
   @Override
@@ -224,17 +237,4 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
     String fromExpression;
   }
 
-  /**
-   * return the list of node under a List, to simplify the code
-   *
-   * @param nodeList nodeList
-   * @return the list of node under a List<>
-   */
-  private List<Node> getList(NodeList nodeList) {
-    ArrayList<Node> nodeArrayList = new ArrayList<>();
-    for (int i = 0; i < nodeList.getLength(); i++)
-      nodeArrayList.add(nodeList.item(i));
-
-    return nodeArrayList;
-  }
 }

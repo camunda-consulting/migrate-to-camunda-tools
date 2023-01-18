@@ -17,7 +17,7 @@ public class Pilot {
     this.report = report;
   }
 
-  public void process(File pathIn, File pathOut) {
+  public void process(File pathIn, File pathOut, boolean debugOperation) {
     String[] listProcessFile = pathIn.list();
     if (listProcessFile == null)
       return;
@@ -45,7 +45,7 @@ public class Pilot {
 
 
         Report.Operation processOperation = report.startOperation("transformation");
-        executeTransformations(diagramBPMN, pathOut);
+        executeTransformations(diagramBPMN, pathOut, debugOperation);
         report.endOperation("  -- End transformation", processOperation);
 
         Report.Operation processPostVerification = report.startOperation("postverification");
@@ -63,7 +63,7 @@ public class Pilot {
     report.info("End, process produced in  [" + pathOut.getAbsolutePath() + "]");
   }
 
-  private void executeTransformations(BpmnDiagramTransport diagramBPMN,File pathOut) {
+  private void executeTransformations(BpmnDiagramTransport diagramBPMN,File pathOut, boolean debugOperation) {
     try {
       TransformFactory transformFactory = TransformFactory.getInstance();
       int transformationNumber=0;
@@ -73,13 +73,15 @@ public class Pilot {
         // diagramBPMN.write(pathOut, transformationNumber+"_"+transformer.getName()+"_beg");
 
         diagramBPMN = transformer.apply(diagramBPMN, report);
-        // diagramBPMN.write(pathOut, transformationNumber+"_"+transformer.getName()+"_end");
-
+        if (debugOperation) {
+          diagramBPMN.write(pathOut, transformationNumber + "_" + transformer.getName() + "_end");
+        }
         String name = (transformer.getName()+"                         ").substring(0,20);
         report.endOperation("     [" + name + "] : " + transformer.getReportOperations(), operation);
       }
     } catch (Exception e) {
       // already logged
+      report.info("already logger "+e.getMessage()+" "+e.getCause());
     }
   }
 

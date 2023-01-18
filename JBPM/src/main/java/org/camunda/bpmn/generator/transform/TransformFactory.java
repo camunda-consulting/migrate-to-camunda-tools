@@ -19,6 +19,7 @@ public class TransformFactory {
         new TransformationFEEL(),
         new TransformationDelAssignment(),
         new TransformUserTaskInput(),
+        new TransformSequence(),
         new TransformationDraw());
   }
 }

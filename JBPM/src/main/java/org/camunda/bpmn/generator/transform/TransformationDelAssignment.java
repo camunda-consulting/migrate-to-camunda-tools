@@ -1,9 +1,12 @@
 package org.camunda.bpmn.generator.transform;
 
 import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
+import org.camunda.bpmn.generator.process.BpmnTool;
 import org.camunda.bpmn.generator.report.Report;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.List;
 
 public class TransformationDelAssignment implements TransformationBpmnInt {
 
@@ -15,16 +18,15 @@ public class TransformationDelAssignment implements TransformationBpmnInt {
   }
 
   @Override
-  public BpmnDiagramTransport apply(BpmnDiagramTransport diagramBPMN, Report report) {
+  public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
 
     try {
-      NodeList listDataInput = diagramBPMN.getElementsByTagName("dataInputAssociation");
-      for (int i = 0; i < listDataInput.getLength(); i++) {
-        Node dataInput = listDataInput.item(i);
+      List<Node> listDataInput = bpmnDiagram.getBpmnTool().getElementsByTagName("dataInputAssociation");
+      for (Node dataInput : listDataInput) {
         NodeList listChildInput = dataInput.getChildNodes();
-        for (int j = 0; j < listChildInput.getLength(); j++) {
-          if ("assignment".equals(listChildInput.item(j).getNodeName())) {
-            dataInput.removeChild(listChildInput.item(j));
+        for (Node assignmentNode : BpmnTool.getList(listChildInput)) {
+          if (BpmnTool.equalsNodeName(assignmentNode,"assignment")) {
+            dataInput.removeChild(assignmentNode);
             assignmentDeleted++;
           }
         }
@@ -33,7 +35,7 @@ public class TransformationDelAssignment implements TransformationBpmnInt {
       report.error("During FEEL operation ", e);
 
     }
-    return diagramBPMN;
+    return bpmnDiagram;
   }
 
   @Override

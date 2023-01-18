@@ -10,7 +10,6 @@ package org.camunda.bpmn.generator.process;
 
 import org.camunda.bpmn.generator.report.Report;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -77,22 +76,10 @@ public class BpmnDiagramTransport {
     this.processXml = processXml;
   }
 
-  /**
-   * Return all SequenceFlow
-   *
-   * @return NodesList of sequenceFlow
-   */
-  public NodeList getSequenceFlow() {
-    // search all Sequence flow
-    NodeList nodes = processXml.getElementsByTagName("sequenceFlow");
-    report.debug("DiagramBPMN.getSequenceFlow(): Found " + nodes.getLength());
-    return nodes;
+
+
+  public BpmnTool getBpmnTool() {
+    return new BpmnTool(this, report);
   }
 
-  public NodeList getElementsByTagName(String tagName) {
-    // search all Sequence flow
-    NodeList nodes = processXml.getElementsByTagName(tagName);
-    report.debug("DiagramBPMN.getElementByTagName(" + tagName + "): Found " + nodes.getLength());
-    return nodes;
-  }
 }
