@@ -77,14 +77,40 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
   }
 
   @Override
+  public boolean init(Report report) {
+    return true;
+  }
+  @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
     try {
       List<Node> listUserTaskInput = bpmnDiagram.getBpmnTool().getElementsByTagName("userTask");
       for (Node userTask : listUserTaskInput) {
 
+        /**
+         * Search
+         *      <dataInputAssociation>
+         *        <targetRef>_jbpm-unique-1_NodeNameInput</targetRef>
+         *        <assignment>
+         *          <from xsi:type="tFormalExpression">Returned To Initiator</from>
+         *          <to xsi:type="tFormalExpression">_jbpm-unique-1_NodeNameInput</to>
+         *        </assignment>
+         *      </dataInputAssociation>
+         */
         Map<String, DataAssociation> inputAssociation = collectDataAssociation(userTask, "dataInputAssociation",
+            //nameis Output
+            ENUM_SOURCEID.TARGETREF, // id for the relation is TargetRef
             report);
+
+        /**
+         * Search
+         *    <dataOutputAssociation>
+         *      <sourceRef>_jbpm-unique-1_wfActionOutput</sourceRef>
+         *      <targetRef>wfAction</targetRef>
+         *    </dataOutputAssociation>
+         */
         Map<String, DataAssociation> outputAssociation = collectDataAssociation(userTask, "dataOutputAssociation",
+            // name of node
+            ENUM_SOURCEID.SOURCEREF, // id for the relation is SourceRef
             report);
 
         for (Node childUserTask : bpmnDiagram.getBpmnTool().getList(userTask.getChildNodes())) {
@@ -122,6 +148,10 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
     return bpmnDiagram;
   }
 
+  public enum ENUM_SOURCEID {SOURCEREF, TARGETREF}
+
+  ;
+
   /**
    * Search
    * *       <dataInputAssociation>
@@ -140,7 +170,11 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
    * @param name         node of child to filter
    * @return all data association
    */
-  private Map<String, DataAssociation> collectDataAssociation(Node userTaskNode, String name, Report report) {
+
+  private Map<String, DataAssociation> collectDataAssociation(Node userTaskNode,
+                                                              String name,
+                                                              ENUM_SOURCEID sourceId,
+                                                              Report report) {
     Map<String, DataAssociation> mapDataAssociation = new HashMap<>();
     for (Node userTaskChildNode : BpmnTool.getList(userTaskNode.getChildNodes())) {
       if (BpmnTool.equalsNodeName(userTaskChildNode, name)) {
@@ -161,13 +195,19 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
                   .findFirst()
                   .get();
             } catch (Exception e) {
-              report.error("No child [from] in this element : id=[" + BpmnTool.getAttributName(userTaskNode, "id")
-                  + "] dataAssociationI=[" + BpmnTool.getAttributName(itemAssociation, "id"));
+              report.error("No child [from] in this element : id=[" + BpmnTool.getAttributeName(userTaskNode, "id")
+                  + "] dataAssociationI=[" + BpmnTool.getAttributeName(itemAssociation, "id"));
             }
           }
         }
+        String id;
+        switch (sourceId) {
+        case SOURCEREF -> id = dataAssociation.sourceRef;
+        case TARGETREF -> id = dataAssociation.targetRef;
+        default -> id = dataAssociation.targetRef;
+        }
+        mapDataAssociation.put(id, dataAssociation);
 
-        mapDataAssociation.put(dataAssociation.targetRef, dataAssociation);
       }
 
     }
@@ -193,16 +233,21 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
     for (Node childSpecification : BpmnTool.getList(ioSpecificationNode.getChildNodes())) {
       Element parameter = null;
       DataAssociation dataAssociation = null;
+      String contentParameter=null;
       if (BpmnTool.equalsNodeName(childSpecification, "dataInput")) {
         //     <dataInput id="_jbpm-unique-1_wfActionInput" name="wfAction" />
         // to
         //     <camunda:inputParameter name="wfAction">${wfAction}</camunda:inputParameter>
         parameter = document.createElement(BPMN_ELEMENT_INPUT_PARAMETER);
-        dataAssociation = inputAssociation.get(((Element) childSpecification).getAttribute("id"));
+        dataAssociation = inputAssociation.get(BpmnTool.getAttributeName(childSpecification,"id"));
+        // the source of the inputParameter is the sourceRef
+        contentParameter = dataAssociation==null? null: dataAssociation.sourceRef;
       }
       if (BpmnTool.equalsNodeName(childSpecification, "dataOutput")) {
         parameter = document.createElement(BPMN_ELEMENT_OUTPUT_PARAMETER);
-        dataAssociation = outputAssociation.get(((Element) childSpecification).getAttribute("id"));
+        dataAssociation = outputAssociation.get(BpmnTool.getAttributeName(childSpecification, "id"));
+        // the source of the inputParameter is the targetRef
+        contentParameter = dataAssociation==null? null: dataAssociation.targetRef;
       }
 
       if (parameter != null) {
@@ -214,10 +259,8 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
         parameter.setAttribute("name", name);
         if ("TaskName".equals(name) || "NodeName".equals(name)) {
           // ignore it
-        } else if (dataAssociation == null) {
-          // ignore it
-        } else if (dataAssociation.sourceRef != null) {
-          parameter.setTextContent("${" + dataAssociation.sourceRef + "}");
+        } else if (contentParameter != null) {
+          parameter.setTextContent("${" + contentParameter + "}");
         } else if (dataAssociation.fromExpression != null) {
           parameter.setTextContent(dataAssociation.fromExpression);
         }
