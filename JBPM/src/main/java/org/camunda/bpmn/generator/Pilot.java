@@ -18,18 +18,24 @@ public class Pilot {
   }
 
   public void process(File pathIn, File pathOut, boolean debugOperation) {
+
+    // Initialize all factory transformation first
+    if (!initTransformation()) {
+      return;
+    }
+
     String[] listProcessFile = pathIn.list();
     if (listProcessFile == null)
       return;
     report.info("Found  " + listProcessFile.length + " files in [" + pathIn.getAbsolutePath() + "]");
 
-    String prefix="----------------------------------------------- ";
+    String prefix = "----------------------------------------------- ";
     for (String oneProcessFile : listProcessFile) {
       if (!oneProcessFile.endsWith(".bpmn")) {
         report.error("Can't transform file[" + oneProcessFile + "] : must be end by .bpmn");
         continue;
       }
-      report.info(prefix+"Manage[" + oneProcessFile + "]");
+      report.info(prefix + "Manage[" + oneProcessFile + "]");
       BpmnDiagramTransport diagramBPMN = new BpmnDiagramTransport(report);
       try {
         diagramBPMN.read(new File(pathIn + "/" + oneProcessFile));
@@ -37,12 +43,11 @@ public class Pilot {
         // verification before any transformation:
         Report.Operation processPreVerification = report.startOperation("preverification");
 
-        if (! executeVerifications(diagramBPMN)) {
-          report.error("["+oneProcessFile+"]Verification before transformation failed, to not process");
+        if (!executeVerifications(diagramBPMN)) {
+          report.error("[" + oneProcessFile + "]Verification before transformation failed, to not process");
           continue;
         }
         report.endOperation("  -- End pre verification ", processPreVerification);
-
 
         Report.Operation processOperation = report.startOperation("transformation");
         executeTransformations(diagramBPMN, pathOut, debugOperation);
@@ -51,7 +56,7 @@ public class Pilot {
         Report.Operation processPostVerification = report.startOperation("postverification");
         executeVerifications(diagramBPMN);
         report.endOperation("  -- End post verification ", processPostVerification);
-        report.endOperation(prefix+"End[" + oneProcessFile + "]", processPostVerification);
+        report.endOperation(prefix + "End[" + oneProcessFile + "]", processPostVerification);
         diagramBPMN.write(pathOut);
 
       } catch (Exception e) {
@@ -63,10 +68,20 @@ public class Pilot {
     report.info("End, process produced in  [" + pathOut.getAbsolutePath() + "]");
   }
 
-  private void executeTransformations(BpmnDiagramTransport diagramBPMN,File pathOut, boolean debugOperation) {
+  private boolean initTransformation() {
+    boolean allIsOk = true;
+    TransformFactory transformFactory = TransformFactory.getInstance();
+    for (TransformationBpmnInt transformer : transformFactory.getTransformers()) {
+      if (!transformer.init(report))
+        allIsOk = false;
+    }
+    return allIsOk;
+  }
+
+  private void executeTransformations(BpmnDiagramTransport diagramBPMN, File pathOut, boolean debugOperation) {
     try {
       TransformFactory transformFactory = TransformFactory.getInstance();
-      int transformationNumber=0;
+      int transformationNumber = 0;
       for (TransformationBpmnInt transformer : transformFactory.getTransformers()) {
         transformationNumber++;
         Report.Operation operation = report.startOperation("Transformation " + transformer.getName());
@@ -74,31 +89,31 @@ public class Pilot {
 
         diagramBPMN = transformer.apply(diagramBPMN, report);
         if (debugOperation) {
-          diagramBPMN.write(pathOut, transformationNumber + "_" + transformer.getName() + "_end");
+          diagramBPMN.write(pathOut, transformationNumber + "_" + transformer.getName() + "_end.bpmn");
         }
-        String name = (transformer.getName()+"                         ").substring(0,20);
+        String name = (transformer.getName() + "                         ").substring(0, 20);
         report.endOperation("     [" + name + "] : " + transformer.getReportOperations(), operation);
       }
     } catch (Exception e) {
       // already logged
-      report.info("already logger "+e.getMessage()+" "+e.getCause());
+      report.info("already logger " + e.getMessage() + " " + e.getCause());
     }
   }
 
   private boolean executeVerifications(BpmnDiagramTransport diagramBPMN) {
     // now run all verifications
     VerificationFactory verificationFactory = VerificationFactory.getInstance();
-    boolean isOk=true;
+    boolean isOk = true;
     for (VerificationInt verification : verificationFactory.getTransformers()) {
       Report.Operation operation = report.startOperation("Transformation " + verification.getName());
 
       boolean localIsOk = verification.isOk(diagramBPMN, report);
 
-      String name = (verification.getName()+"                         ").substring(0,20);
+      String name = (verification.getName() + "                         ").substring(0, 20);
       report.endOperation("     [" + name + "] : " + localIsOk + " - " + verification.getReportVerification(),
           operation);
       if (!localIsOk)
-        isOk=false;
+        isOk = false;
 
     }
     return isOk;

@@ -23,6 +23,7 @@ import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
+import org.camunda.bpmn.generator.process.BpmnTool;
 import org.camunda.bpmn.generator.report.Report;
 import org.camunda.bpmn.generator.transform.TransformationBpmnInt;
 import org.w3c.dom.Document;
@@ -31,17 +32,12 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -73,6 +69,11 @@ public class TransformationDraw implements TransformationBpmnInt {
   }
 
   @Override
+  public boolean init(Report report) {
+    return true;
+  }
+
+  @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport diagram, Report report) {
 
     try {
@@ -89,7 +90,7 @@ public class TransformationDraw implements TransformationBpmnInt {
 
       // Load the XML in the Camunda API
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      xmlToOutputStream(docXML, byteArrayOutputStream);
+      BpmnTool.xmlToOutputStream(docXML, byteArrayOutputStream);
       ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
       modelInstance = Bpmn.readModelFromStream(inputStream);
@@ -329,16 +330,6 @@ public class TransformationDraw implements TransformationBpmnInt {
     // lane may have lane
 
     return baseLane + 10;
-  }
-
-  private void xmlToOutputStream(Document document, OutputStream outputStream) throws Exception {
-
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    Transformer transformer = transformerFactory.newTransformer();
-    DOMSource source = new DOMSource(document);
-    StreamResult result = new StreamResult(outputStream);
-
-    transformer.transform(source, result);
   }
 
   public record Envelope(int height, int width) {

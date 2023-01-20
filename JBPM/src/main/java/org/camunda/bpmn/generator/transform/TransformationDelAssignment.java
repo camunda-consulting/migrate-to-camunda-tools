@@ -18,6 +18,11 @@ public class TransformationDelAssignment implements TransformationBpmnInt {
   }
 
   @Override
+  public boolean init(Report report) {
+    return true;
+  }
+
+  @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
 
     try {
@@ -25,7 +30,7 @@ public class TransformationDelAssignment implements TransformationBpmnInt {
       for (Node dataInput : listDataInput) {
         NodeList listChildInput = dataInput.getChildNodes();
         for (Node assignmentNode : BpmnTool.getList(listChildInput)) {
-          if (BpmnTool.equalsNodeName(assignmentNode,"assignment")) {
+          if (BpmnTool.equalsNodeName(assignmentNode, "assignment")) {
             dataInput.removeChild(assignmentNode);
             assignmentDeleted++;
           }

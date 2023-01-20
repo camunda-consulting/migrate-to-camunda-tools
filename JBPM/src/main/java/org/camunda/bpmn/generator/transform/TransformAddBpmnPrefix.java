@@ -4,18 +4,17 @@ import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
 import org.camunda.bpmn.generator.process.BpmnTool;
 import org.camunda.bpmn.generator.report.Report;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class TransformAddBpmnPrefix implements TransformationBpmnInt {
+  int nbReplacements = 0;
+
   @Override
   public String getName() {
     return "AddBpmnPrefix";
   }
-
-  int nbReplacements = 0;
 
   @Override
   public boolean init(Report report) {

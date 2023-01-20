@@ -2,6 +2,8 @@ package org.camunda.bpmn.generator.transform;
 
 import org.camunda.bpmn.generator.process.BpmnDiagramTransport;
 import org.camunda.bpmn.generator.report.Report;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -27,20 +29,36 @@ public class TransformBpmnDefinition implements TransformationBpmnInt {
   }
 
   @Override
+  public boolean init(Report report) {
+    return true;
+  }
+
+  @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
+    Document document = bpmnDiagram.getProcessXml();
     List<Node> listUserTaskInput = bpmnDiagram.getBpmnTool().getElementsByBpmnName("definitions");
     if (listUserTaskInput.isEmpty()) {
       report.error("No bpmn:definition found");
       return bpmnDiagram;
     }
 
-    Element bpmnDefinition = (Element) listUserTaskInput.get(0);
-    for (Map.Entry<String, String> oneDeclaration : mandatoryDeclaration.entrySet()) {
-      String attributValue =bpmnDefinition.getAttribute(oneDeclaration.getKey());
-      if ( attributValue == null || attributValue.trim().isEmpty()) {
-        bpmnDefinition.setAttribute(oneDeclaration.getKey(), oneDeclaration.getValue());
-        addMissingDeclarations.add(oneDeclaration.getKey());
+    try {
+      Element bpmnDefinition = (Element) listUserTaskInput.get(0);
+      for (Map.Entry<String, String> oneDeclaration : mandatoryDeclaration.entrySet()) {
+        String attributValue = bpmnDefinition.getAttribute(oneDeclaration.getKey());
+        if (attributValue == null || attributValue.trim().isEmpty()) {
+          bpmnDefinition.setAttribute(oneDeclaration.getKey(), oneDeclaration.getValue());
+          addMissingDeclarations.add(oneDeclaration.getKey());
+        }
+
+        /*
+        document.getDocumentElement().setAttributeNS(oneDeclaration.getValue(),// "http://www.w3.org/2000/xmlns/",
+            oneDeclaration.getKey(), // "xmlns:yourNamespace",
+            ""); // "http://whatever/else");
+*/
       }
+    } catch (DOMException e) {
+      report.error("During adding namespace ", e);
     }
     return bpmnDiagram;
   }

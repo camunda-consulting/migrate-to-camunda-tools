@@ -8,22 +8,21 @@ import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TransformSequence implements TransformationBpmnInt {
+  private final List<SequenceFlow> relations = new ArrayList<>();
+  int nbCreations = 0;
+  int nbDeletions = 0;
+
   @Override
   public String getName() {
     return "Sequence";
   }
 
-  int nbCreations = 0;
-  int nbDeletions = 0;
-
-  public record SequenceFlow(String id, String sourceRef, String targetRef) {
+  @Override
+  public boolean init(Report report) {
+    return true;
   }
-
-
-  private final List<SequenceFlow> relations = new ArrayList<>();
 
   @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
@@ -31,9 +30,9 @@ public class TransformSequence implements TransformationBpmnInt {
     // build relations
     List<Node> listSequences = bpmnDiagram.getBpmnTool().getElementsByBpmnName("sequenceFlow");
     for (Node sequence : listSequences) {
-      relations.add(new SequenceFlow(BpmnTool.getAttributName(sequence, "id"), // id of sequence
-          BpmnTool.getAttributName(sequence, "sourceRef"), // id of source
-          BpmnTool.getAttributName(sequence, "targetRef"))); // id of targer
+      relations.add(new SequenceFlow(BpmnTool.getAttributeName(sequence, "id"), // id of sequence
+          BpmnTool.getAttributeName(sequence, "sourceRef"), // id of source
+          BpmnTool.getAttributeName(sequence, "targetRef"))); // id of targer
     }
 
     // Build all bpmn:incoming and outgoing
@@ -55,20 +54,22 @@ public class TransformSequence implements TransformationBpmnInt {
 
         // if one child is "extensionElements", ignore it, there is a issue at this moment
         // ERROR >>>>>>>>>>>>>>>>>>>>>>> During DRAW operation  SAXException while parsing input stream org.xml.sax.SAXException: Error: URI=null Line=44: cvc-complex-type.2.4.a: Invalid content was found starting with element '{"http://www.omg.org/spec/BPMN/20100524/MODEL":extensionElements}'. One of '{"http://www.omg.org/spec/BPMN/20100524/MODEL":incoming, "http://www.omg.org/spec/BPMN/20100524/MODEL":outgoing, "http://www.omg.org/spec/BPMN/20100524/MODEL":ioSpecification, "http://www.omg.org/spec/BPMN/20100524/MODEL":property, "http://www.omg.org/spec/BPMN/20100524/MODEL":dataInputAssociation, "http://www.omg.org/spec/BPMN/20100524/MODEL":dataOutputAssociation, "http://www.omg.org/spec/BPMN/20100524/MODEL":resourceRole, "http://www.omg.org/spec/BPMN/20100524/MODEL":loopCharacteristics, "http://www.omg.org/spec/BPMN/20100524/MODEL":rendering}' is expected.
-        boolean noExtension = listNodes.stream().filter(t->BpmnTool.equalsNodeName(t, "extensionElements")).findAny().isEmpty();
-        if( ! noExtension) {
-          referenceNode=null;
+        boolean noExtension = listNodes.stream()
+            .filter(t -> BpmnTool.equalsNodeName(t, "extensionElements"))
+            .findAny()
+            .isEmpty();
+        if (!noExtension) {
+          referenceNode = null;
           // extension must be placed before incoming / outgoing
         }
-        if (referenceNode!=null) {
-          report.info("This node contains child, place incoming/outcoming first " + artefactNode.getNodeName() + " id=[" + BpmnTool.getAttributName(
-              artefactNode, "id") + "] name=[" + BpmnTool.getAttributName(artefactNode, "name")
-              + "] contains extensionElements, ignore it");
+        if (referenceNode != null) {
+          report.info("This node contains child, place incoming/outcoming first " + artefactNode.getNodeName() + " id=["
+              + BpmnTool.getAttributeName(artefactNode, "id") + "] name=[" + BpmnTool.getAttributeName(artefactNode,
+              "name") + "] contains extensionElements, ignore it");
         }
         if (BpmnTool.getBpmnChildren(artefactNode, "incoming").isEmpty()) {
           // we can add the incoming node
-          List<SequenceFlow> listIncoming = getAllIncomingTask(
-              BpmnTool.getAttributName(artefactNode, "id"));
+          List<SequenceFlow> listIncoming = getAllIncomingTask(BpmnTool.getAttributeName(artefactNode, "id"));
           for (SequenceFlow incoming : listIncoming) {
             Element incomingElement = bpmnDiagram.getProcessXml().createElement("bpmn:incoming");
             incomingElement.setTextContent(incoming.id);
@@ -82,8 +83,7 @@ public class TransformSequence implements TransformationBpmnInt {
 
         if (BpmnTool.getBpmnChildren(artefactNode, "outgoing").isEmpty()) {
           // we can add the incoming node
-          List<SequenceFlow> listOutgoing = getAllOutgoing(
-              BpmnTool.getAttributName(artefactNode, "id"));
+          List<SequenceFlow> listOutgoing = getAllOutgoing(BpmnTool.getAttributeName(artefactNode, "id"));
           for (SequenceFlow outgoing : listOutgoing) {
             Element outgoingElement = bpmnDiagram.getProcessXml().createElement("bpmn:outgoing");
             outgoingElement.setTextContent(outgoing.id);
@@ -124,6 +124,9 @@ public class TransformSequence implements TransformationBpmnInt {
    */
   private List<SequenceFlow> getAllIncomingTask(String taskName) {
     return relations.stream().filter(t -> t.targetRef().equals(taskName)).toList();
+  }
+
+  public record SequenceFlow(String id, String sourceRef, String targetRef) {
   }
 
 }

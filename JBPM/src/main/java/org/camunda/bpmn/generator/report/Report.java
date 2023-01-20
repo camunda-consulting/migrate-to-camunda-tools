@@ -32,7 +32,7 @@ public class Report {
   }
 
   public void error(String message, Exception e) {
-    error(message + " " + e.getMessage()+" "+e.getCause());
+    error(message + " " + e.getMessage() + " " + e.getCause());
   }
 
   public void debug(String message) {
@@ -47,13 +47,13 @@ public class Report {
 
   public void endOperation(String message, Operation operation) {
     long duration = endOperationInternal(operation);
-    info(message + " in " + duration+" ms");
+    info(message + " in " + duration + " ms");
   }
 
   public void endOperation(Operation operation) {
     long duration = endOperationInternal(operation);
     if (duration > 100)
-      info("operation [" + operation.name + "] done in " + duration+" ms");
+      info("operation [" + operation.name + "] done in " + duration + " ms");
 
   }
 

@@ -14,13 +14,7 @@ public class TransformFactory {
   }
 
   public List<TransformationBpmnInt> getTransformers() {
-    return Arrays.asList(
-        new TransformBpmnDefinition(),
-        new TransformationFEEL(),
-        new TransformationDelAssignment(),
-        new TransformUserTaskInput(),
-        new TransformSequence(),
-        new TransformAddBpmnPrefix(),
-        new TransformationDraw());
+    return Arrays.asList(new TransformBpmnDefinition(), new TransformationFEEL(), new TransformationDelAssignment(),
+        new TransformUserTaskInput(), new TransformSequence(), new TransformAddBpmnPrefix(), new TransformationDraw());
   }
 }

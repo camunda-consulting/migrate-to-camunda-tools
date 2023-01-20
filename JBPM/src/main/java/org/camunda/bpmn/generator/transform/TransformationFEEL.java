@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class TransformationFEEL implements TransformationBpmnInt {
 
   private int feelExpressionReplaced = 0;
-  private int feelExpressionIgnored=0;
+  private int feelExpressionIgnored = 0;
 
   @Override
   public String getName() {
@@ -31,6 +31,7 @@ public class TransformationFEEL implements TransformationBpmnInt {
   public boolean init(Report report) {
     return true;
   }
+
   @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
 
@@ -45,13 +46,13 @@ public class TransformationFEEL implements TransformationBpmnInt {
         Element sequenceFlow = (Element) nodeSequence;
         // the sequence contains a condition?
         NodeList listChild = sequenceFlow.getChildNodes();
-        for (Node nodeCondition :  bpmnDiagram.getBpmnTool().getList(listChild)) {
+        for (Node nodeCondition : bpmnDiagram.getBpmnTool().getList(listChild)) {
           if (!(nodeCondition instanceof Element)) {
             continue;
           }
           Element condition = (Element) nodeCondition;
-          if (condition.getNodeName().equals("conditionExpression")
-          || condition.getNodeName().endsWith(":conditionExpression")) {
+          if (condition.getNodeName().equals("conditionExpression") || condition.getNodeName()
+              .endsWith(":conditionExpression")) {
             // Yes, get one here
             String textContent = condition.getTextContent();
             if (textContent.trim().endsWith(";"))
@@ -79,7 +80,7 @@ public class TransformationFEEL implements TransformationBpmnInt {
               String value = textContent.substring(indexOfEquals + ".equals(".length());
               // remove the last )
               value = value.substring(0, value.length() - 1);
-              condition.setTextContent("${"+variableName + " == " + value+"}");
+              condition.setTextContent("${" + variableName + " == " + value + "}");
               // remove the attribut language
               condition.removeAttribute("language");
 
@@ -100,6 +101,6 @@ public class TransformationFEEL implements TransformationBpmnInt {
 
   @Override
   public String getReportOperations() {
-    return "Feel Expression replaced " + feelExpressionReplaced+" ignored "+feelExpressionIgnored;
+    return "Feel Expression replaced " + feelExpressionReplaced + " ignored " + feelExpressionIgnored;
   }
 }

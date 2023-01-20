@@ -27,6 +27,11 @@ public class BPMNFromJBPM {
 
     String pathOut = args[arg];
 
+    report.info("Migrate JPMB process in [" + pathIn + "] to Camunda 7 process saved in [" + pathOut + "]" + (
+        debugOperation ?
+            " -debug-" :
+            ""));
+
     Pilot pilot = new Pilot(report);
     pilot.process(new File(pathIn), new File(pathOut), debugOperation);
     report.info("Terminated");

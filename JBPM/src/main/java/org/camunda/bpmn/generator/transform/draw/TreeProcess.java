@@ -96,6 +96,7 @@ public class TreeProcess {
     private Coordinate exit;
     private int height = 0;
     private int width = 0;
+
     public TreeNode(TreeNode parent) {
       this.parent = parent;
     }

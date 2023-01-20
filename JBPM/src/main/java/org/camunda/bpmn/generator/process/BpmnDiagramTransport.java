@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -33,9 +34,10 @@ public class BpmnDiagramTransport {
   public void read(File file) throws Exception {
     // Read document in preparation for Xpath searches
     processName = file.getName();
-    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+
     try {
       Report.Operation operation = report.startOperation("ReadProcess");
+      DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
       processXml = dBuilder.parse(file);
       report.endOperation(operation);
@@ -45,17 +47,28 @@ public class BpmnDiagramTransport {
       throw e;
     }
   }
+
   public void write(File folderOutput) {
     write(folderOutput, null);
   }
 
-  public void write(File folderOutput,String prefixName) {
-    try (FileOutputStream output = new FileOutputStream(folderOutput + "\\out_" + processName
-        +(prefixName!=null ? "_"+prefixName:""))) {
+  /**
+   * @param folderOutput pth to write the result
+   * @param prefixName   prefix name of the file
+   */
+  public void write(File folderOutput, String prefixName) {
+    try (FileOutputStream output = new FileOutputStream(
+        folderOutput + "\\out_" + processName + (prefixName != null ? "_" + prefixName : ""))) {
       Report.Operation operation = report.startOperation("WriteProcess");
 
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
       Transformer transformer = transformerFactory.newTransformer();
+      transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+      // transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, ignoreDeclaration ? "yes" : "no");
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty(OutputKeys.INDENT, "2");
+
       DOMSource source = new DOMSource(processXml);
       StreamResult result = new StreamResult(output);
 
@@ -75,8 +88,6 @@ public class BpmnDiagramTransport {
   public void setProcessXml(Document processXml) {
     this.processXml = processXml;
   }
-
-
 
   public BpmnTool getBpmnTool() {
     return new BpmnTool(this, report);

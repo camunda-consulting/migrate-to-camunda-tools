@@ -11,9 +11,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-public class VerificationRead implements  VerificationInt{
+public class VerificationRead implements VerificationInt {
 
-  private String errors="";
+  private String errors = "";
+
   @Override
   public String getName() {
     return "Read";
@@ -36,9 +37,8 @@ public class VerificationRead implements  VerificationInt{
 
       Bpmn.readModelFromStream(input);
       return true;
-    }
-    catch(Exception e) {
-      errors=e.getMessage()+" "+e.getCause();
+    } catch (Exception e) {
+      errors = e.getMessage() + " " + e.getCause();
       return false;
     }
   }

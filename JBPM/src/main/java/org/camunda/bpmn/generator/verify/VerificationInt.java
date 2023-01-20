@@ -15,7 +15,5 @@ public interface VerificationInt {
    */
   boolean isOk(BpmnDiagramTransport diagram, Report report);
 
-
-
   String getReportVerification();
 }

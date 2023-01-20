@@ -80,6 +80,7 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
   public boolean init(Report report) {
     return true;
   }
+
   @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
     try {
@@ -147,10 +148,6 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
     }
     return bpmnDiagram;
   }
-
-  public enum ENUM_SOURCEID {SOURCEREF, TARGETREF}
-
-  ;
 
   /**
    * Search
@@ -233,21 +230,21 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
     for (Node childSpecification : BpmnTool.getList(ioSpecificationNode.getChildNodes())) {
       Element parameter = null;
       DataAssociation dataAssociation = null;
-      String contentParameter=null;
+      String contentParameter = null;
       if (BpmnTool.equalsNodeName(childSpecification, "dataInput")) {
         //     <dataInput id="_jbpm-unique-1_wfActionInput" name="wfAction" />
         // to
         //     <camunda:inputParameter name="wfAction">${wfAction}</camunda:inputParameter>
         parameter = document.createElement(BPMN_ELEMENT_INPUT_PARAMETER);
-        dataAssociation = inputAssociation.get(BpmnTool.getAttributeName(childSpecification,"id"));
+        dataAssociation = inputAssociation.get(BpmnTool.getAttributeName(childSpecification, "id"));
         // the source of the inputParameter is the sourceRef
-        contentParameter = dataAssociation==null? null: dataAssociation.sourceRef;
+        contentParameter = dataAssociation == null ? null : dataAssociation.sourceRef;
       }
       if (BpmnTool.equalsNodeName(childSpecification, "dataOutput")) {
         parameter = document.createElement(BPMN_ELEMENT_OUTPUT_PARAMETER);
         dataAssociation = outputAssociation.get(BpmnTool.getAttributeName(childSpecification, "id"));
         // the source of the inputParameter is the targetRef
-        contentParameter = dataAssociation==null? null: dataAssociation.targetRef;
+        contentParameter = dataAssociation == null ? null : dataAssociation.targetRef;
       }
 
       if (parameter != null) {
@@ -273,6 +270,8 @@ public class TransformUserTaskInput implements TransformationBpmnInt {
   public String getReportOperations() {
     return "iospecification deleted " + ioSpecification;
   }
+
+  public enum ENUM_SOURCEID {SOURCEREF, TARGETREF}
 
   private static class DataAssociation {
     String targetRef;
