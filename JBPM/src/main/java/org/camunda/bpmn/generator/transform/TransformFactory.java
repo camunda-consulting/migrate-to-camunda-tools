@@ -20,6 +20,7 @@ public class TransformFactory {
         new TransformationDelAssignment(),
         new TransformUserTaskInput(),
         new TransformSequence(),
+        new TransformAddBpmnPrefix(),
         new TransformationDraw());
   }
 }
