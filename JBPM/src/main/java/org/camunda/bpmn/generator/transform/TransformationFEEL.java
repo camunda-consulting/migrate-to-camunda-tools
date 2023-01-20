@@ -28,10 +28,16 @@ public class TransformationFEEL implements TransformationBpmnInt {
   }
 
   @Override
+  public boolean init(Report report) {
+    return true;
+  }
+  @Override
   public BpmnDiagramTransport apply(BpmnDiagramTransport bpmnDiagram, Report report) {
 
-    Pattern equalsExpression = Pattern.compile(
+    Pattern returnEqualsExpression = Pattern.compile(
         "return [ ]*[a-zA-Z\"]+\\.equals\\([ ]*[a-zA-Z_0-9\"]+[ ]*\\)");//. represents single character
+    Pattern equalsExpression = Pattern.compile(
+        "[ ]*[a-zA-Z\"]+\\.equals\\([ ]*[a-zA-Z_0-9\"]+[ ]*\\)");//. represents single character
 
     try {
       List<Node> listSequences = bpmnDiagram.getBpmnTool().getElementsByBpmnName("sequenceFlow");
@@ -54,11 +60,22 @@ public class TransformationFEEL implements TransformationBpmnInt {
 
             // match return <Variable>.equals(<value>) ?
 
-            if (equalsExpression.matcher(textContent).matches()) {
+            if (returnEqualsExpression.matcher(textContent).matches()) {
               // transform the content then
               // get the name
               int indexOfEquals = textContent.indexOf(".equals(");
-              String variableName = textContent.substring("return".length(), indexOfEquals);
+              String variableName = textContent.substring("return".length(), indexOfEquals).trim();
+              String value = textContent.substring(indexOfEquals + ".equals(".length());
+              // remove the last )
+              value = value.substring(0, value.length() - 1);
+              condition.setTextContent("${" + variableName + " == " + value + "}");
+              // remove the attribut language
+              condition.removeAttribute("language");
+
+              feelExpressionReplaced++;
+            } else if (equalsExpression.matcher(textContent).matches()) {
+              int indexOfEquals = textContent.indexOf(".equals(");
+              String variableName = textContent.substring(indexOfEquals).trim();
               String value = textContent.substring(indexOfEquals + ".equals(".length());
               // remove the last )
               value = value.substring(0, value.length() - 1);
@@ -67,6 +84,7 @@ public class TransformationFEEL implements TransformationBpmnInt {
               condition.removeAttribute("language");
 
               feelExpressionReplaced++;
+
             } else {
               feelExpressionIgnored++;
               report.info("Expression {" + textContent + "] does not match any transformation expression - ignored");
