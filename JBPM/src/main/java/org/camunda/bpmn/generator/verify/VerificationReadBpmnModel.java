@@ -11,13 +11,13 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-public class VerificationRead implements VerificationInt {
+public class VerificationReadBpmnModel implements VerificationInt {
 
   private String errors = "";
 
   @Override
   public String getName() {
-    return "Read";
+    return "ReadBpmnModel";
   }
 
   @Override

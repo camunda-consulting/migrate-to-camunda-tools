@@ -35,6 +35,9 @@
 
     </dependencies>
 
+
+
+
     <build>
         <plugins>
             <plugin>
@@ -50,7 +53,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.camunda.create.bpmndi.BPMNDiagramGenerator</mainClass>
+                            <mainClass>org.camunda.bpmn.generator.BPMNFromJBPM</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -62,8 +65,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
         </plugins>
