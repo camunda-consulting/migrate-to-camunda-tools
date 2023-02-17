@@ -12,6 +12,6 @@ public class VerificationFactory {
   }
 
   public List<VerificationInt> getTransformers() {
-    return Arrays.asList(new VerificationRead());
+    return Arrays.asList(new VerificationReadBpmnModel());
   }
 }
