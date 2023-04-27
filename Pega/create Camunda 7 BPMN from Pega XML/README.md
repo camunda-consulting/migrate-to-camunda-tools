@@ -1,4 +1,4 @@
-# Pega to BPMN Converter
+# Pega to Camunda 7 BPMN Converter
 Processes developed in Pega are not compliant with the BPMN standard despite having process diagrams that are fairly BPMN-like. The xml generated for a process application is quite extensive but it can be read and translated into a BPMN equivalent. There are Pega constructs that don't quite have a BPMN analog such as tickets but this utility will provide the basic process flow saving you the effort of having to rebuild it manually. Even then you'll likely need to refactor the process to make it executable in BPMN.
 
 ## How to use this utility
