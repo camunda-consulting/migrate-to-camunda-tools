@@ -84,7 +84,8 @@ public class BPMNGenFromPega {
             bpmnDiagram.setBpmnPlane(plane);
             definitions.addChildElement(bpmnDiagram);
 
-            NodeList pyShapeTypeList = doc.getElementsByTagName("pyShapeType");
+            //NodeList pyShapeTypeList = doc.getElementsByTagName("pyShapeType");
+            NodeList pyShapeTypeList = doc.getElementsByTagName("pyFromClass");
 
             XPathExpression searchRequest = null;
             XPath xpath = XPathFactory.newInstance().newXPath();
@@ -166,30 +167,34 @@ public class BPMNGenFromPega {
                 String toId = toList.item(0).getTextContent();
                 FlowNodeInfo fromFNI = (FlowNodeInfo) flowNodesMap.get(fromId);
                 FlowNodeInfo toFNI = (FlowNodeInfo) flowNodesMap.get(toId);
-                SequenceFlow sf = modelInstance.newInstance(SequenceFlow.class);
-                process.addChildElement(sf);
+                if(toFNI != null && fromFNI !=null) {
+                    SequenceFlow sf = modelInstance.newInstance(SequenceFlow.class);
+                    process.addChildElement(sf);
 
-                // Get sequence flow name
-                searchRequest = xpath.compile("pyMOName");
-                NodeList nameList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                if(nameList.getLength() > 0) {
-                    sf.setAttributeValue("name", nameList.item(0).getTextContent());
+
+                    // Get sequence flow name
+                    searchRequest = xpath.compile("pyMOName");
+                    NodeList nameList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
+                    if (nameList.getLength() > 0) {
+                        sf.setAttributeValue("name", nameList.item(0).getTextContent());
+                    }
+
+                    // Get sequence flow waypoint list - currently not used
+                    searchRequest = xpath.compile("pyConnectorPoints");
+                    NodeList connectorPointList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
+
+
+                    String targetId = toFNI.getNewId();
+                    String sourceId = fromFNI.getNewId();
+
+                    FlowNode targetFlowNode = modelInstance.getModelElementById(targetId);
+                    FlowNode sourceFlowNode = modelInstance.getModelElementById(sourceId);
+
+                    sf.setSource(sourceFlowNode);
+                    sf.setTarget(targetFlowNode);
+
+                    plane = DrawFlow.drawFlow(plane, modelInstance, sf, fromFNI, toFNI, connectorPointList, 0d, 0d);
                 }
-
-                // Get sequence flow waypoint list - currently not used
-                searchRequest = xpath.compile("pyConnectorPoints");
-                NodeList connectorPointList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-
-                String targetId = toFNI.getNewId();
-                String sourceId = fromFNI.getNewId();
-
-                FlowNode targetFlowNode = modelInstance.getModelElementById(targetId);
-                FlowNode sourceFlowNode = modelInstance.getModelElementById(sourceId);
-
-                sf.setSource(sourceFlowNode);
-                sf.setTarget(targetFlowNode);
-
-                plane = DrawFlow.drawFlow(plane, modelInstance, sf, fromFNI, toFNI, connectorPointList, 0d, 0d);
             }
 
             Bpmn.validateModel(modelInstance);
