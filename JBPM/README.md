@@ -22,6 +22,7 @@ Execute the following command using the resulting jar file
 
 ```
 cd target
+cp ../src/main/resources/xsd/*.xsd .
 java -jar JPBM-1.0-SNAPSHOT-jar-with-dependencies.jar <inputDirectory> <outputDirectory>
 ```
 
