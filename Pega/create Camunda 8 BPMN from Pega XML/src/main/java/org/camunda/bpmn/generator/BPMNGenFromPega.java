@@ -49,7 +49,7 @@ public class BPMNGenFromPega {
             pegaElementsMap.put("Data-MO-Activity-Utility", bpmnElement);
             bpmnElement = new PegaToBPMNElement(EndEvent.class, 36d, 36d);
             pegaElementsMap.put("Data-MO-Event-End", bpmnElement);
-            pegaElementsMap.put("Data-MO-Event-Exception", bpmnElement);
+            //pegaElementsMap.put("Data-MO-Event-Exception", bpmnElement);
             bpmnElement = new PegaToBPMNElement(ExclusiveGateway.class, 50d, 50d);
             pegaElementsMap.put("Data-MO-Gateway-Decision", bpmnElement);
             //bpmnElement = new PegaToBPMNElement(SequenceFlow.class, 0d,0d);
@@ -94,7 +94,8 @@ public class BPMNGenFromPega {
             while(iter.hasNext()) {
                     String key = (String) iter.next();
                     bpmnElement = (PegaToBPMNElement) pegaElementsMap.get(key);
-                    searchRequest = xpath.compile("//pyShapeType[text() = '"+key+"']");
+                    //searchRequest = xpath.compile("//pyShapeType[text() = '"+key+"']");
+                    searchRequest = xpath.compile("//pxObjClass[text() = '"+key+"']");
                     pyShapeTypeList = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
                     for (int i = 0; i < pyShapeTypeList.getLength(); i++) {
                         Node parentNode = pyShapeTypeList.item(i).getParentNode();
