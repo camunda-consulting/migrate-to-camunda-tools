@@ -52,6 +52,8 @@ public class BPMNGenFromPega {
             //pegaElementsMap.put("Data-MO-Event-Exception", bpmnElement);
             bpmnElement = new PegaToBPMNElement(ExclusiveGateway.class, 50d, 50d);
             pegaElementsMap.put("Data-MO-Gateway-Decision", bpmnElement);
+            bpmnElement = new PegaToBPMNElement(ParallelGateway.class, 50d, 50d);
+            pegaElementsMap.put("Data-MO-Container-SplitJoin", bpmnElement);
             //bpmnElement = new PegaToBPMNElement(SequenceFlow.class, 0d,0d);
             //pegaElementsMap.put("Data-MO-Connector-Transition", bpmnElement);
 
@@ -103,23 +105,33 @@ public class BPMNGenFromPega {
                         NodeList xCoordList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
                         searchRequest = xpath.compile("pyCoordY");
                         NodeList yCoordList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                        Double newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 120;
-                        Double newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 120;
+                        Double newX = 0d;
+                        if(xCoordList.item(0).getTextContent() != null) {
+                            newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 120;
+                        }
+                        Double newY = 0d;
+                        if(yCoordList.item(0).getTextContent() != null) {
+                            newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 120;
+                        }
 
                         searchRequest = xpath.compile("pyMOName");
                         NodeList nameList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
 
                         BpmnModelElementInstance element = (BpmnModelElementInstance) modelInstance.newInstance(bpmnElement.getType());
-                        if(nameList.getLength() > 0) {
+                        if(nameList.getLength() > 0 && nameList.item(0).getTextContent() != null) {
                                 element.setAttributeValue("name", nameList.item(0).getTextContent());
                         }
                         process.addChildElement(element);
                         plane = DrawShape.drawShape(plane, modelInstance, element, newX, newY, bpmnElement.getHeight(), bpmnElement.getWidth(), true, false);
 
-                        FlowNodeInfo fni = new FlowNodeInfo(element.getAttributeValue("id"), Double.valueOf(xCoordList.item(0).getTextContent()),  Double.valueOf(yCoordList.item(0).getTextContent()), newX, newY, bpmnElement.getType().toString(), bpmnElement.getHeight(), bpmnElement.getWidth());
-                        searchRequest = xpath.compile("pyMOId");
-                        NodeList idList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                        flowNodesMap.put(idList.item(0).getTextContent(), fni);
+                        if(xCoordList.item(0).getTextContent() != null) {
+                            FlowNodeInfo fni = new FlowNodeInfo(element.getAttributeValue("id"), Double.valueOf(xCoordList.item(0).getTextContent()), Double.valueOf(yCoordList.item(0).getTextContent()), newX, newY, bpmnElement.getType().toString(), bpmnElement.getHeight(), bpmnElement.getWidth());
+                            searchRequest = xpath.compile("pyMOId");
+                            NodeList idList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
+                            if(idList.item(0).getTextContent() != null) {
+                                flowNodesMap.put(idList.item(0).getTextContent(), fni);
+                            }
+                        }
                     }
             }
 
@@ -135,22 +147,32 @@ public class BPMNGenFromPega {
                     NodeList xCoordList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
                     searchRequest = xpath.compile("pyCoordY");
                     NodeList yCoordList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                    Double newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 120;
-                    Double newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 120;
+                    Double newX = 0d;
+                    if(xCoordList.item(0).getTextContent() != null) {
+                        newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 120;
+                    }
+                    Double newY = 0d;
+                    if(yCoordList.item(0).getTextContent() != null) {
+                        newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 120;
+                    }
                     BpmnModelElementInstance element = (BpmnModelElementInstance) modelInstance.newInstance(EndEvent.class);
 
                     searchRequest = xpath.compile("pyMOName");
                     NodeList nameList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                    if(nameList.getLength() > 0) {
+                    if(nameList.getLength() > 0 && nameList.item(0).getTextContent() != null) {
                             element.setAttributeValue("name", nameList.item(0).getTextContent());
                     }
                     process.addChildElement(element);
                     plane = DrawShape.drawShape(plane, modelInstance, element, newX, newY, 36d, 36d, true, false);
 
-                    FlowNodeInfo fni = new FlowNodeInfo(element.getAttributeValue("id"),  Double.valueOf(xCoordList.item(0).getTextContent()),  Double.valueOf(yCoordList.item(0).getTextContent()), newX, newY, EndEvent.class.toString(), 36d, 36d);
-                    searchRequest = xpath.compile("pyMOId");
-                    NodeList idList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                    flowNodesMap.put(idList.item(0).getTextContent(), fni);
+                    if(xCoordList.item(0).getTextContent() != null) {
+                        FlowNodeInfo fni = new FlowNodeInfo(element.getAttributeValue("id"), Double.valueOf(xCoordList.item(0).getTextContent()), Double.valueOf(yCoordList.item(0).getTextContent()), newX, newY, EndEvent.class.toString(), 36d, 36d);
+                        searchRequest = xpath.compile("pyMOId");
+                        NodeList idList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
+                        if(idList.item(0).getTextContent() != null) {
+                            flowNodesMap.put(idList.item(0).getTextContent(), fni);
+                        }
+                    }
 
             }
 
@@ -162,10 +184,16 @@ public class BPMNGenFromPega {
                 Node parentNode = sequenceElement.getParentNode();
                 searchRequest = xpath.compile("pyFrom");
                 NodeList fromList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                String fromId = fromList.item(0).getTextContent();
-                searchRequest = xpath.compile("pyTo");
-                NodeList toList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                String toId = toList.item(0).getTextContent();
+                String fromId = "";
+                String toId = "";
+                if(fromList.item(0).getTextContent() != null) {
+                    fromId = fromList.item(0).getTextContent();
+                    searchRequest = xpath.compile("pyTo");
+                    NodeList toList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
+                    if (toList.item(0).getTextContent() != null) {
+                        toId = toList.item(0).getTextContent();
+                    }
+                }
                 FlowNodeInfo fromFNI = (FlowNodeInfo) flowNodesMap.get(fromId);
                 FlowNodeInfo toFNI = (FlowNodeInfo) flowNodesMap.get(toId);
                 if(toFNI != null && fromFNI !=null) {
@@ -176,7 +204,7 @@ public class BPMNGenFromPega {
                     // Get sequence flow name
                     searchRequest = xpath.compile("pyMOName");
                     NodeList nameList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
-                    if (nameList.getLength() > 0) {
+                    if (nameList.getLength() > 0 && nameList.item(0).getTextContent() != null) {
                         sf.setAttributeValue("name", nameList.item(0).getTextContent());
                     }
 
