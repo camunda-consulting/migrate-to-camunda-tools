@@ -107,11 +107,11 @@ public class BPMNGenFromPega {
                         NodeList yCoordList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
                         Double newX = 0d;
                         if(xCoordList.item(0).getTextContent() != null) {
-                            newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 120;
+                            newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 200;
                         }
                         Double newY = 0d;
                         if(yCoordList.item(0).getTextContent() != null) {
-                            newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 120;
+                            newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 200;
                         }
 
                         searchRequest = xpath.compile("pyMOName");
@@ -149,11 +149,11 @@ public class BPMNGenFromPega {
                     NodeList yCoordList = (NodeList) searchRequest.evaluate(parentNode, XPathConstants.NODESET);
                     Double newX = 0d;
                     if(xCoordList.item(0).getTextContent() != null) {
-                        newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 120;
+                        newX = (Double.valueOf(xCoordList.item(0).getTextContent()) + 5) * 200;
                     }
                     Double newY = 0d;
                     if(yCoordList.item(0).getTextContent() != null) {
-                        newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 120;
+                        newY = (Double.valueOf(yCoordList.item(0).getTextContent()) + 5) * 200;
                     }
                     BpmnModelElementInstance element = (BpmnModelElementInstance) modelInstance.newInstance(EndEvent.class);
 

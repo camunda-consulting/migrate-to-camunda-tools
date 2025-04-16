@@ -9,6 +9,8 @@ import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.Text;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
+import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnShape;
+import org.camunda.bpm.model.bpmn.instance.dc.Bounds;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,15 +21,16 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 
-public class BPMNGenFromXPDL {
+public class BPMNGenFromXPDL2dot0 {
     public static void main(String[] args) throws Exception {
         //try {
 
         // Read and parse file
         // Need to pass in two args - arg[0] is the input file and arg[1] is the output file
         if (args.length < 2) {
-            System.out.println("Two arguments are required for this BPMN from TWX program. One for the input file followed by one for the output file.");
+            System.out.println("Two arguments are required for this converter. One for the input file followed by one for the output file.");
             return;
         }
 
@@ -36,6 +39,9 @@ public class BPMNGenFromXPDL {
 
         // Create hash map to map ids in old file node objects with ids in new file
         HashMap<String, String> idMap = new HashMap<>();
+
+        // Create hash of flow nodes for drawing of sequence flows later
+        HashMap< String, Object > flowNodesMap = new HashMap<>();
 
         // Create another hash map for boundary events since they use the same id as the node they are attached to. This will help later when adding and drawing sequence flows.
         HashMap<String, Object> boundaryMap = new HashMap<>();
@@ -65,6 +71,10 @@ public class BPMNGenFromXPDL {
         Process process = modelInstance.newInstance(Process.class);
         process.setExecutable(true); // Want to make sure it is executable by default in Modeler
 
+        // Add process to defs November 2024
+        definitions.addChildElement(process);
+        plane.setBpmnElement(process);
+
         // Get pool, laneset, and lane information and add to process
         // Look for pools.
 
@@ -80,6 +90,8 @@ public class BPMNGenFromXPDL {
         Double height = new Double(0);
         Double x = new Double(0);
         Double y = new Double(0);
+
+        Double zoomFactor = 1.5d;
 
         for (int i = 0; i < nodeGraphicInfoList.getLength(); i++) {
             Element nodeGraphicInfoElement = (Element) nodeGraphicInfoList.item(i);
@@ -111,7 +123,7 @@ public class BPMNGenFromXPDL {
                 Double poolY = new Double(coordinateElement.getAttribute("YCoordinate"));
 
                 // draw pool in diagram.
-                plane = DrawShape.drawShape(plane, modelInstance, participant, poolX, poolY, height, width, true);
+                plane = DrawShape.drawShape(plane, modelInstance, participant, poolX*zoomFactor, poolY*zoomFactor, height, width, true);
 
                 // Create laneset and add lanes
                 LaneSet laneset = modelInstance.newInstance(LaneSet.class);
@@ -140,7 +152,7 @@ public class BPMNGenFromXPDL {
                     y = new Double(coordinatesElement.getAttribute("YCoordinate"));
 
                     //plane = DrawShape.drawShape(plane, modelInstance, lane, x + poolX - 20, y + poolY, height, width + 20, true);
-                    plane = DrawShape.drawShape(plane, modelInstance, lane, x, y, height, width, true);
+                    plane = DrawShape.drawShape(plane, modelInstance, lane, x*zoomFactor, y*zoomFactor, height, width, true);
                 }
             }
         }
@@ -171,7 +183,9 @@ public class BPMNGenFromXPDL {
 
                         // Add new entry in map for sequence flows later
                         idMap.put(parentElement.getAttribute("Id"), callActivity.getId());
-                        plane = DrawShape.drawShape(plane, modelInstance, callActivity, x, y, 80, 100, true);
+                        plane = DrawShape.drawShape(plane, modelInstance, callActivity, x*zoomFactor, y*zoomFactor, 80, 100, true);
+                        FlowNodeInfo fni = new FlowNodeInfo(callActivity.getId(), x, y, x*zoomFactor, y*zoomFactor, CallActivity.class.toString(), 80d, 100d);
+                        flowNodesMap.put(callActivity.getId(), fni);
 
                     } else {
                         Task task = modelInstance.newInstance(Task.class);
@@ -223,7 +237,9 @@ public class BPMNGenFromXPDL {
 
                         // Add new entry in map for sequence flows later
                         idMap.put(parentElement.getAttribute("Id"), task.getId());
-                        plane = DrawShape.drawShape(plane, modelInstance, task, x, y, 80, 100, true);
+                        plane = DrawShape.drawShape(plane, modelInstance, task, x*zoomFactor, y*zoomFactor, 80, 100, true);
+                        FlowNodeInfo fni = new FlowNodeInfo(task.getId(), x, y, x*zoomFactor, y*zoomFactor, Task.class.toString(), task.getDiagramElement().getBounds().getHeight(), task.getDiagramElement().getBounds().getWidth());
+                        flowNodesMap.put(task.getId(), fni);
                     }
 
                 }
@@ -250,7 +266,9 @@ public class BPMNGenFromXPDL {
                     // Add new entry in map for sequence flows later
                     idMap.put(parentElement.getAttribute("Id"), sp.getId());
 
-                    plane = DrawShape.drawShape(plane, modelInstance, sp, x, y, 80, 100, true);
+                    plane = DrawShape.drawShape(plane, modelInstance, sp, x*zoomFactor, y*zoomFactor, 80, 100, true);
+                    FlowNodeInfo fni = new FlowNodeInfo(sp.getId(), x, y, x*zoomFactor, y*zoomFactor, Task.class.toString(), 80d, 100d);
+                    flowNodesMap.put(sp.getId(), fni);
                 }
             }
         }
@@ -628,14 +646,20 @@ public class BPMNGenFromXPDL {
                             // Add new entry in map for sequence flows later
                             idMap.put(parentElement.getAttribute("Id"), boundaryElementInstance.getAttributeValue("id"));
 
-                            plane = DrawShape.drawShape(plane, modelInstance, boundaryElementInstance, x, y, 36, 36, true);
+                            plane = DrawShape.drawShape(plane, modelInstance, boundaryElementInstance, x*zoomFactor, y*zoomFactor, 36, 36, true);
+                            FlowNodeInfo fni = new FlowNodeInfo(boundaryElementInstance.getAttributeValue("id"), x, y, x*zoomFactor, y*zoomFactor, Event.class.toString(), 36d, 36d);
+                            flowNodesMap.put(boundaryElementInstance.getAttributeValue("id"), fni);
+
+
                         } else {
                             process.addChildElement(event);
 
                             // Add new entry in map for sequence flows later
                             idMap.put(parentElement.getAttribute("Id"), event.getId());
 
-                            plane = DrawShape.drawShape(plane, modelInstance, event, x, y, 36, 36, true);
+                            plane = DrawShape.drawShape(plane, modelInstance, event, x*zoomFactor, y*zoomFactor, 36, 36, true);
+                            FlowNodeInfo fni = new FlowNodeInfo(event.getId(), x, y, x*zoomFactor, y*zoomFactor, Event.class.toString(), 36d, 36d);
+                            flowNodesMap.put(event.getId(), fni);
                         }
                     }
                 }
@@ -676,7 +700,9 @@ public class BPMNGenFromXPDL {
                     // Add new entry in map for sequence flows later
                     idMap.put(parentElement.getAttribute("Id"), gateway.getId());
 
-                    plane = DrawShape.drawShape(plane, modelInstance, gateway, x, y, 50, 50, true);
+                    plane = DrawShape.drawShape(plane, modelInstance, gateway, x*zoomFactor, y*zoomFactor, 50, 50, true);
+                    FlowNodeInfo fni = new FlowNodeInfo(gateway.getId(), x, y, x*zoomFactor, y*zoomFactor, Gateway.class.toString(), gateway.getDiagramElement().getBounds().getHeight(), gateway.getDiagramElement().getBounds().getWidth());
+                    flowNodesMap.put(gateway.getId(), fni);
                 }
             }
         }
@@ -691,8 +717,8 @@ public class BPMNGenFromXPDL {
 
             switch(parentElement.getAttribute("ArtifactType")) {
                 case "Annotation":
-                    height = new Double(artifactElement.getAttribute("Height"));
-                    width = new Double(artifactElement.getAttribute("Width"));
+                    height = 80d; //new Double(artifactElement.getAttribute("Height"));
+                    width = 100d; //new Double(artifactElement.getAttribute("Width"));
 
                     NodeList coordinatesList = parentElement.getElementsByTagNameNS("*","Coordinates");
                     Element coordinatesElement = (Element) coordinatesList.item(0);
@@ -706,7 +732,7 @@ public class BPMNGenFromXPDL {
                     process.addChildElement(textA);
 
                     idMap.put(parentElement.getAttribute("Id"), textA.getId());
-                    plane = DrawShape.drawShape(plane, modelInstance, textA, x, y, height, width, true);
+                    plane = DrawShape.drawShape(plane, modelInstance, textA, x*zoomFactor, y*zoomFactor, height, width, true);
                     break;
 
                 default:
@@ -715,7 +741,6 @@ public class BPMNGenFromXPDL {
         }
 
         // Draw sequence flows
-
         for (int i = 0; i < workflowList.getLength(); i++) {
             Element workflowElement = (Element) workflowList.item(i);
             //searchRequest = xpath.compile("//Transitions/Transition");
@@ -735,15 +760,58 @@ public class BPMNGenFromXPDL {
 
                 NodeList coordinateList = transitionElement.getElementsByTagNameNS("*","Coordinates");
 
-                Double[][] coordinateArray = new Double[coordinateList.getLength()][2];
+                System.out.println("source node "+ sourceFlowNode.getDiagramElement().getChildElementsByType(Bounds.class));
 
-                for (int k = 0; k < coordinateList.getLength(); k++) {
+                Iterator boundsIter = sourceFlowNode.getDiagramElement().getChildElementsByType(Bounds.class).iterator();
+
+                Double[][] coordinateArray = new Double[2][2];
+                int v=0;
+
+                while(boundsIter.hasNext()){
+                    Bounds bounds = (Bounds) boundsIter.next();
+
+                    coordinateArray[0][0] = bounds.getX();
+                    coordinateArray[0][1] = bounds.getY();
+                    //coordinateArray[1][0] = 1000d;
+                    //coordinateArray[1][1] = 1000d;
+
+                }
+
+                boundsIter = targetFlowNode.getDiagramElement().getChildElementsByType(Bounds.class).iterator();
+
+                while(boundsIter.hasNext()){
+                    Bounds bounds = (Bounds) boundsIter.next();
+
+                    //coordinateArray[0][0] = bounds.getX();
+                    //coordinateArray[0][1] = bounds.getY();
+                    coordinateArray[1][0] = bounds.getX();
+                    coordinateArray[1][1] = bounds.getY();
+
+                }
+                //Double[][] coordinateArray = new Double[coordinateList.getLength()][2];
+
+
+                /*coordinateArray[0][0] = Double.valueOf(sourceFlowNode.getDiagramElement()..getAttributeValue("x"));
+                coordinateArray[0][1] = Double.valueOf(sourceFlowNode.getAttributeValue("y"));
+                coordinateArray[1][0] = Double.valueOf(targetFlowNode.getAttributeValue("x"));
+                coordinateArray[1][1] = Double.valueOf(targetFlowNode.getAttributeValue("y"));
+
+                 */
+
+
+                /*for (int k = 0; k < coordinateList.getLength(); k++) {
                     Element coordinateElement = (Element) coordinateList.item(k);
                     coordinateArray[k][0] = new Double(coordinateElement.getAttribute("XCoordinate"));
                     coordinateArray[k][1] = new Double(coordinateElement.getAttribute("YCoordinate"));
                 }
 
-                plane = DrawFlowFromXPDL.drawFlow(plane, modelInstance, sequenceFlow, coordinateArray);
+                 */
+
+                FlowNodeInfo fromFNI = (FlowNodeInfo) flowNodesMap.get(sourceFlowNode.getId());
+                FlowNodeInfo toFNI = (FlowNodeInfo) flowNodesMap.get(targetFlowNode.getId());
+
+                plane = DrawFlow.drawFlow(plane, modelInstance, sequenceFlow, fromFNI, toFNI, null, 0d, 0d);
+                //plane = DrawFlowFromXPDL.drawFlow(plane, modelInstance, sequenceFlow, coordinateArray);
             }
         }
 
@@ -777,7 +845,6 @@ public class BPMNGenFromXPDL {
 
             plane = DrawFlowFromXPDL.drawAssociation(plane, modelInstance, association, coordinateArray);
         }
-
 
         Bpmn.validateModel(modelInstance);
         File outputFile = new File(args[1]);
