@@ -66,6 +66,20 @@ public class BPMNDiagramGenerator {
                 node.getParentNode().removeChild(node);
             }
 
+            // Remove escaped html elements in the documentation stanzas
+            searchRequest = xpath.compile("//documentation");
+            NodeList documentationNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
+            for(int i = 0; i < documentationNodes.getLength(); i++) {
+                Node node = documentationNodes.item(i);
+                Element element = (Element) node;
+                if(element.hasAttribute("textFormat")) {
+                    element.removeAttribute("textFormat");
+                }
+                String documentation = node.getTextContent();
+                String htmlRemoved = documentation.replaceAll("<[^>]+>", " ");
+                node.setTextContent(htmlRemoved);
+            }
+
             // Convert updated document to inputstream to be read by Camunda Model API
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Source xmlSource = new DOMSource(doc);
