@@ -80,6 +80,17 @@ public class BPMNDiagramGenerator {
                 node.setTextContent(htmlRemoved);
             }
 
+            //Remove original BPMN Label Style
+            searchRequest = xpath.compile("//*[local-name()='BPMNLabelStyle']");
+            Node nodeToRemove = (Node) searchRequest.evaluate(doc, XPathConstants.NODE);
+
+            if (nodeToRemove != null) {
+                nodeToRemove.getParentNode().removeChild(nodeToRemove);
+                System.out.println("Element removed.");
+            } else {
+                System.out.println("Element not found.");
+            }
+
             // Convert updated document to inputstream to be read by Camunda Model API
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Source xmlSource = new DOMSource(doc);
